@@ -6,10 +6,12 @@
   :root {
     --bg-primary: #f8fafc;
     --text-primary: #0f172a;
+    --apricart-navy: #0B1B3D;
+    --apricart-gold: #FFC500;
   }
 
   html.dark {
-    --bg-primary: #0b0f17;
+    --bg-primary: #07122b;
     --text-primary: #f8fafc;
     color-scheme: dark;
   }

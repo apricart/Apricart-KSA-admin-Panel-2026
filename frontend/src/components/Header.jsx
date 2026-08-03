@@ -112,7 +112,7 @@ export default function Header({ onMenuClick, onRefresh, refreshing }) {
               title="Notifications"
             >
               <BellIcon />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
+              <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-[#FFC500] ring-2 ring-white dark:ring-slate-900 animate-pulse" />
             </motion.button>
 
             {/* Notifications Dropdown Animated */}
@@ -127,7 +127,7 @@ export default function Header({ onMenuClick, onRefresh, refreshing }) {
                 >
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 mb-3">
                     <span className="font-bold text-slate-900 dark:text-white text-sm">Notifications</span>
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-semibold text-[10px]">
+                    <span className="px-2 py-0.5 rounded-full bg-[#FFC500]/15 text-[#D9A600] dark:text-[#FFC500] font-semibold text-[10px] border border-[#FFC500]/30">
                       New
                     </span>
                   </div>
@@ -151,7 +151,7 @@ export default function Header({ onMenuClick, onRefresh, refreshing }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setProfileOpen(!profileOpen)}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-blue-400/50 transition-all"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#0B1B3D] to-[#1A3A77] text-[#FFC500] font-black text-sm shadow-md shadow-[#0B1B3D]/30 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#FFC500]/50 transition-all border border-[#FFC500]/30"
               title="Account Options"
             >
               {initials}

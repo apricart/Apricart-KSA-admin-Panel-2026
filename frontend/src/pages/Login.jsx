@@ -50,22 +50,32 @@ export default function Login() {
   const isPasswordFloating = passwordFocused || password.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50/60 text-slate-900 flex flex-col justify-center items-center p-4 relative transition-colors duration-200">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-center items-center p-4 relative transition-colors duration-200 overflow-hidden">
+      {/* Decorative Brand Ambient Glowing Orbs */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#FFC500]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#0B1B3D]/15 rounded-full blur-3xl pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0, y: 15, scale: 0.98 }}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="w-full max-w-md relative z-10"
       >
         {/* Card Form */}
-        <div className="p-7 md:p-9 pt-6 md:pt-7 rounded-3xl bg-white border border-slate-100 shadow-xl shadow-slate-200/50">
-          {/* Header (Shifted Up away from input fields) */}
-          <div className="space-y-0.5 mb-7">
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
-              Sign In
+        <div className="p-8 md:p-10 pt-7 md:pt-8 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-[#0B1B3D]/10">
+          {/* Apricart Brand Header */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0B1B3D] via-[#0F2654] to-[#1A3875] text-[#FFC500] font-black text-2xl shadow-lg shadow-[#0B1B3D]/30 flex items-center justify-center mb-3 border border-[#FFC500]/30 cursor-pointer"
+            >
+              A
+            </motion.div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1B3D]">
+              Apricart <span className="text-[#FFC500] font-black">KSA</span>
             </h1>
-            <p className="text-xs text-slate-400 font-medium">
-              Enter your credentials to access your account.
+            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
+              Admin Portal Sign In
             </p>
           </div>
 
@@ -74,16 +84,16 @@ export default function Login() {
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold"
+                className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold text-center"
               >
                 {error}
               </motion.div>
             )}
 
-            {/* Email Field with Floating Label */}
+            {/* Email Field */}
             <div className="relative">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors duration-200">
-                <AtSignIcon className={emailFocused ? "text-slate-900" : "text-slate-400"} />
+                <AtSignIcon className={emailFocused ? "text-[#0B1B3D]" : "text-slate-400"} />
               </div>
               <input
                 id="email"
@@ -96,7 +106,7 @@ export default function Login() {
                 required
                 className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border-2 !bg-white text-slate-900 text-sm font-medium focus:outline-none transition-all duration-200 ${
                   emailFocused
-                    ? "border-slate-900"
+                    ? "border-[#0B1B3D] ring-2 ring-[#0B1B3D]/10"
                     : "border-slate-200 hover:border-slate-300"
                 }`}
               />
@@ -104,7 +114,7 @@ export default function Login() {
                 htmlFor="email"
                 className={`absolute left-10 pointer-events-none transition-all duration-200 px-1 bg-white rounded ${
                   isEmailFloating
-                    ? "-top-2.5 text-xs font-bold text-slate-900 z-10"
+                    ? "-top-2.5 text-xs font-bold text-[#0B1B3D] z-10"
                     : "top-3.5 text-sm font-medium text-slate-400"
                 }`}
               >
@@ -112,22 +122,21 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Password Field Header (Forgot Password Link) */}
+            {/* Password Field Header & Input */}
             <div className="space-y-1.5">
               <div className="flex justify-end">
                 <a
                   href="#forgot"
                   onClick={(e) => e.preventDefault()}
-                  className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-slate-500 hover:text-[#0B1B3D] transition-colors cursor-pointer"
                 >
                   Forgot Password?
                 </a>
               </div>
 
-              {/* Password Field with Floating Label */}
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors duration-200">
-                  <LockIcon className={passwordFocused ? "text-slate-900" : "text-slate-400"} />
+                  <LockIcon className={passwordFocused ? "text-[#0B1B3D]" : "text-slate-400"} />
                 </div>
                 <input
                   id="password"
@@ -140,7 +149,7 @@ export default function Login() {
                   required
                   className={`w-full pl-11 pr-11 py-3.5 rounded-2xl border-2 !bg-white text-slate-900 text-sm font-medium focus:outline-none transition-all duration-200 ${
                     passwordFocused
-                      ? "border-slate-900"
+                      ? "border-[#0B1B3D] ring-2 ring-[#0B1B3D]/10"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 />
@@ -148,7 +157,7 @@ export default function Login() {
                   htmlFor="password"
                   className={`absolute left-10 pointer-events-none transition-all duration-200 px-1 bg-white rounded ${
                     isPasswordFloating
-                      ? "-top-2.5 text-xs font-bold text-slate-900 z-10"
+                      ? "-top-2.5 text-xs font-bold text-[#0B1B3D] z-10"
                       : "top-3.5 text-sm font-medium text-slate-400"
                   }`}
                 >
@@ -157,7 +166,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer p-1"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0B1B3D] transition-colors cursor-pointer p-1"
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -166,20 +175,20 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Apricart Brand Submit Button */}
             <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.985 }}
               type="submit"
               disabled={submitting}
-              className="w-full mt-4 py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-black text-white font-bold text-base shadow-lg shadow-slate-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full mt-4 py-3.5 px-6 rounded-2xl bg-[#0B1B3D] hover:bg-[#07132B] text-white font-bold text-base shadow-lg shadow-[#0B1B3D]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed group border border-slate-800"
             >
               {submitting ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <span>Sign In</span>
-                  <ArrowRightIcon className="w-5 h-5" />
+                  <ArrowRightIcon className="w-5 h-5 text-[#FFC500] group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </motion.button>
