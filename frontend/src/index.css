@@ -26,6 +26,33 @@
     min-height: 100vh;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
+
+  /* Global Cursor Pointer Rules for Hover */
+  button,
+  a,
+  select,
+  summary,
+  label,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  .cursor-pointer,
+  [onClick],
+  tr.cursor-pointer,
+  div.cursor-pointer,
+  span.cursor-pointer {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  button[disabled] {
+    cursor: not-allowed !important;
+  }
 }
 
 /* Custom scrollbars for clean UI */

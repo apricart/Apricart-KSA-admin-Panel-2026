@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import apiClient from "../api/client";
+import { orderService } from "../api";
 import MainLayout from "../components/MainLayout";
 import {
   PackageIcon,
@@ -70,18 +70,22 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
+  // Pagination states
+  const [pageNo, setPageNo] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await apiClient.get("orders");
+      const response = await orderService.getOrders({ pageNo, pageSize });
       setAllOrders(response.data.data);
     } catch {
       setError("Could not load orders from API server.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageNo, pageSize]);
 
   useEffect(() => {
     fetchOrders();
@@ -92,14 +96,14 @@ export default function Dashboard() {
     setLoading(true);
     try {
       if (orderStatusFilter !== "ALL") {
-        const response = await apiClient.get(`orders/type/${orderStatusFilter}`);
+        const response = await orderService.getOrdersByType(orderStatusFilter);
         let data = response.data.data;
         if (paymentStatusFilter !== "ALL") {
           data = data.filter((order) => order.paymentStatus === paymentStatusFilter);
         }
         setOrders(data);
       } else if (paymentStatusFilter !== "ALL") {
-        const response = await apiClient.get(`orders/status/${paymentStatusFilter}`);
+        const response = await orderService.getOrdersByStatus(paymentStatusFilter);
         setOrders(response.data.data);
       } else {
         setOrders(allOrders);
@@ -408,6 +412,49 @@ export default function Dashboard() {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination Controls Footer */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-xs font-medium text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-2">
+              <span>Rows per page:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPageNo(0);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span className="text-slate-400 ml-2">
+                (API params: <code className="text-amber-500 font-mono">pageNo={pageNo}&pageSize={pageSize}</code>)
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span>Page <strong className="text-slate-900 dark:text-white font-bold">{pageNo + 1}</strong></span>
+              
+              <button
+                onClick={() => setPageNo((prev) => Math.max(0, prev - 1))}
+                disabled={pageNo === 0 || loading}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+
+              <button
+                onClick={() => setPageNo((prev) => prev + 1)}
+                disabled={(visibleOrders?.length ?? 0) < pageSize || loading}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </motion.section>
       </motion.div>

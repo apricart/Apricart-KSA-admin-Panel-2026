@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import apiClient from "../api/client";
+import { orderService } from "../api";
 import {
   PackageIcon,
   CloseIcon,
@@ -86,8 +86,8 @@ export default function OrderDetailPanel({ orderId, onClose }) {
     setError("");
     let cancelled = false;
 
-    apiClient
-      .get("orders/detail", { params: { id: orderId } })
+    orderService
+      .getOrderDetail(orderId)
       .then((response) => {
         if (!cancelled) setOrder(response.data.data);
       })
