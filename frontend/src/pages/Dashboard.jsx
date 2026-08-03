@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "../api/client";
-import { useAuth } from "../context/AuthContext";
+import MainLayout from "../components/MainLayout";
 import {
   PackageIcon,
   ClockIcon,
@@ -8,33 +9,48 @@ import {
   XCircleIcon,
   SearchIcon,
   SortIcon,
-  LogoutIcon,
+  FilterIcon,
+  RefreshIcon,
 } from "../components/icons";
 import OrderDetailPanel from "../components/OrderDetailPanel";
-import "./Dashboard.css";
+import { StatCardSkeleton, TableRowsSkeleton } from "../components/Skeleton";
 
 const ORDER_STATUSES = ["ALL", "PENDING", "DELIVERED", "CANCELLED"];
 const PAYMENT_STATUSES = ["ALL", "UNPAID", "PAID"];
 
-const ORDER_STATUS_BADGE = {
-  PENDING: "warning",
-  DELIVERED: "good",
-  CANCELLED: "critical",
+const ORDER_STATUS_CONFIG = {
+  PENDING: {
+    badgeClass: "bg-amber-500/15 text-amber-400 border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400",
+    dotClass: "bg-amber-400 shadow-xs shadow-amber-400",
+  },
+  DELIVERED: {
+    badgeClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400",
+    dotClass: "bg-emerald-400 shadow-xs shadow-emerald-400",
+  },
+  CANCELLED: {
+    badgeClass: "bg-rose-500/15 text-rose-400 border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400",
+    dotClass: "bg-rose-400 shadow-xs shadow-rose-400",
+  },
 };
 
-const PAYMENT_STATUS_BADGE = {
-  UNPAID: "warning",
-  PAID: "good",
+const PAYMENT_STATUS_CONFIG = {
+  UNPAID: {
+    badgeClass: "bg-amber-500/15 text-amber-400 border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400",
+    dotClass: "bg-amber-400 shadow-xs shadow-amber-400",
+  },
+  PAID: {
+    badgeClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400",
+    dotClass: "bg-emerald-400 shadow-xs shadow-emerald-400",
+  },
 };
 
-// type: "text" -> client-side search input; "select" -> server-side dropdown; "sort" -> sortable only
 const COLUMNS = [
-  { key: "id", label: "Order ID", type: "text" },
-  { key: "orderStatus", label: "Status", type: "select", options: ORDER_STATUSES },
-  { key: "paymentStatus", label: "Payment", type: "select", options: PAYMENT_STATUSES },
-  { key: "items", label: "Items", type: "sort" },
-  { key: "grandTotal", label: "Total", type: "sort" },
-  { key: "deliveryDate", label: "Delivery date", type: "sort" },
+  { key: "id", label: "ORDER ID", type: "text" },
+  { key: "orderStatus", label: "STATUS", type: "select", options: ORDER_STATUSES },
+  { key: "paymentStatus", label: "PAYMENT", type: "select", options: PAYMENT_STATUSES },
+  { key: "items", label: "ITEMS", type: "sort" },
+  { key: "grandTotal", label: "TOTAL", type: "sort" },
+  { key: "deliveryDate", label: "DELIVERY DATE", type: "sort" },
 ];
 
 function getSortValue(order, key) {
@@ -43,7 +59,6 @@ function getSortValue(order, key) {
 }
 
 export default function Dashboard() {
-  const { adminName, logout } = useAuth();
   const [allOrders, setAllOrders] = useState(null);
   const [orders, setOrders] = useState(null);
   const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
@@ -52,27 +67,29 @@ export default function Dashboard() {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    apiClient
-      .get("orders")
-      .then((response) => {
-        if (!cancelled) setAllOrders(response.data.data);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Could not load orders.");
-      });
-
-    return () => {
-      cancelled = true;
-    };
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.get("orders");
+      setAllOrders(response.data.data);
+    } catch {
+      setError("Could not load orders from API server.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const loadFiltered = useCallback(async () => {
     setError("");
+    setLoading(true);
     try {
       if (orderStatusFilter !== "ALL") {
         const response = await apiClient.get(`orders/type/${orderStatusFilter}`);
@@ -93,6 +110,8 @@ export default function Dashboard() {
       } else {
         setError("Could not load orders for the selected filter.");
       }
+    } finally {
+      setLoading(false);
     }
   }, [orderStatusFilter, paymentStatusFilter, allOrders]);
 
@@ -101,23 +120,32 @@ export default function Dashboard() {
   }, [allOrders, loadFiltered]);
 
   const stats = allOrders && [
-    { label: "Total Orders", value: allOrders.length, accent: "blue", Icon: PackageIcon },
+    {
+      label: "Total Orders",
+      value: allOrders.length,
+      color: "border-sky-500/30 bg-sky-500/5 text-sky-400",
+      iconBg: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+      Icon: PackageIcon,
+    },
     {
       label: "Pending",
       value: allOrders.filter((o) => o.orderStatus === "PENDING").length,
-      accent: "yellow",
+      color: "border-amber-500/30 bg-amber-500/5 text-amber-400",
+      iconBg: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
       Icon: ClockIcon,
     },
     {
       label: "Delivered",
       value: allOrders.filter((o) => o.orderStatus === "DELIVERED").length,
-      accent: "aqua",
+      color: "border-emerald-500/30 bg-emerald-500/5 text-emerald-400",
+      iconBg: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
       Icon: CheckCircleIcon,
     },
     {
       label: "Cancelled",
       value: allOrders.filter((o) => o.orderStatus === "CANCELLED").length,
-      accent: "violet",
+      color: "border-purple-500/30 bg-purple-500/5 text-purple-400",
+      iconBg: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
       Icon: XCircleIcon,
     },
   ];
@@ -157,127 +185,243 @@ export default function Dashboard() {
     }
   };
 
+  const resetFilters = () => {
+    setOrderStatusFilter("ALL");
+    setPaymentStatusFilter("ALL");
+    setOrderIdSearch("");
+    setSortKey(null);
+  };
+
   return (
-    <div className="dashboard-page">
-      <header className="dashboard-header">
-        <div>
-          <h1>Orders Dashboard</h1>
-          <p className="dashboard-subtitle">Track and manage customer orders</p>
-        </div>
-        <div className="dashboard-user">
-          <span>Signed in as {adminName}</span>
-          <button onClick={logout}>
-            <LogoutIcon /> Log out
-          </button>
-        </div>
-      </header>
+    <MainLayout onRefresh={fetchOrders} refreshing={loading}>
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-6"
+      >
+        {/* Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-sm flex items-center justify-between"
+          >
+            <span>{error}</span>
+            <button
+              onClick={fetchOrders}
+              className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 rounded-lg text-xs font-semibold"
+            >
+              Retry API
+            </button>
+          </motion.div>
+        )}
 
-      {error && <div className="dashboard-error">{error}</div>}
-
-      <section className="stat-grid">
-        {(stats ?? Array.from({ length: 4 })).map((stat, index) => (
-          <div className="stat-tile" data-accent={stat?.accent ?? "blue"} key={stat?.label ?? index}>
-            <div className="stat-icon">{stat?.Icon && <stat.Icon />}</div>
-            <div>
-              <div className="stat-label">{stat?.label ?? "Loading..."}</div>
-              <div className="stat-value">{stat ? stat.value.toLocaleString() : "—"}</div>
-            </div>
-          </div>
-        ))}
-      </section>
-
-      <section className="orders-table-wrapper">
-        <table className="orders-table">
-          <thead>
-            <tr>
-              {COLUMNS.map((col) => (
-                <th key={col.key}>
-                  <div className="th-content">
-                    <button className="th-sort" onClick={() => toggleSort(col.key)}>
-                      {col.label}
-                      <SortIcon direction={sortKey === col.key ? sortDir : null} />
-                    </button>
-
-                    {col.type === "text" && (
-                      <div className="th-filter th-filter-text">
-                        <SearchIcon />
-                        <input
-                          type="text"
-                          placeholder="Search..."
-                          value={orderIdSearch}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => setOrderIdSearch(e.target.value)}
-                        />
-                      </div>
-                    )}
-
-                    {col.type === "select" && (
-                      <select
-                        className="th-filter"
-                        onClick={(e) => e.stopPropagation()}
-                        value={col.key === "orderStatus" ? orderStatusFilter : paymentStatusFilter}
-                        onChange={(e) =>
-                          col.key === "orderStatus"
-                            ? setOrderStatusFilter(e.target.value)
-                            : setPaymentStatusFilter(e.target.value)
-                        }
-                      >
-                        {col.options.map((option) => (
-                          <option key={option} value={option}>
-                            {option === "ALL" ? "All" : option}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+        {/* Stat Cards Grid */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {allOrders === null
+            ? Array.from({ length: 4 }).map((_, idx) => <StatCardSkeleton key={idx} />)
+            : stats.map((stat, idx) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  whileHover={{ y: -3 }}
+                  className={`p-5 rounded-2xl border transition-all duration-200 shadow-sm flex items-center gap-4 bg-white dark:bg-[#131926] ${stat.color}`}
+                >
+                  <div className={`p-3 rounded-xl ${stat.iconBg}`}>
+                    <stat.Icon className="w-6 h-6" />
                   </div>
-                </th>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide uppercase">
+                      {stat.label}
+                    </p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
+                      {stat.value.toLocaleString()}
+                    </p>
+                  </div>
+                </motion.div>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visibleOrders === null && (
-              <tr>
-                <td colSpan={COLUMNS.length} className="orders-empty">
-                  Loading orders...
-                </td>
-              </tr>
-            )}
-            {visibleOrders?.length === 0 && (
-              <tr>
-                <td colSpan={COLUMNS.length} className="orders-empty">
-                  No orders match this filter.
-                </td>
-              </tr>
-            )}
-            {visibleOrders?.map((order) => (
-              <tr key={order.id} className="orders-row-clickable" onClick={() => setSelectedOrderId(order.id)}>
-                <td>{order.id}</td>
-                <td>
-                  <span className="status-badge" data-status={ORDER_STATUS_BADGE[order.orderStatus] ?? "good"}>
-                    <span className="status-dot" />
-                    {order.orderStatus}
-                  </span>
-                </td>
-                <td>
-                  <span className="status-badge" data-status={PAYMENT_STATUS_BADGE[order.paymentStatus] ?? "good"}>
-                    <span className="status-dot" />
-                    {order.paymentStatus}
-                  </span>
-                </td>
-                <td>{order.orderItems?.length ?? 0}</td>
-                <td>
-                  {order.currency?.currencySymbol} {order.grandTotal?.toLocaleString()}
-                </td>
-                <td>{order.deliveryDate}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        </section>
 
-      {selectedOrderId && (
-        <OrderDetailPanel orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
-      )}
-    </div>
+        {/* Orders Table Container */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#131926] shadow-sm overflow-hidden"
+        >
+          {/* Active Filter Summary / Toolbar */}
+          {(orderStatusFilter !== "ALL" || paymentStatusFilter !== "ALL" || orderIdSearch) && (
+            <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-medium">
+                <FilterIcon className="text-amber-500" />
+                <span>Active Filters:</span>
+                {orderStatusFilter !== "ALL" && (
+                  <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
+                    Status: {orderStatusFilter}
+                  </span>
+                )}
+                {paymentStatusFilter !== "ALL" && (
+                  <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
+                    Payment: {paymentStatusFilter}
+                  </span>
+                )}
+                {orderIdSearch && (
+                  <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
+                    Search: "{orderIdSearch}"
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={resetFilters}
+                className="text-amber-500 hover:text-amber-400 font-semibold underline underline-offset-2"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
+
+          {/* Table Element */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs md:text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-semibold tracking-wider">
+                  {COLUMNS.map((col) => (
+                    <th key={col.key} className="p-4 align-top">
+                      <div className="flex flex-col gap-2">
+                        {/* Header Title with Sort button */}
+                        <button
+                          onClick={() => toggleSort(col.key)}
+                          className="flex items-center gap-1.5 font-bold hover:text-amber-500 transition-colors uppercase text-[11px]"
+                        >
+                          <span>{col.label}</span>
+                          <SortIcon direction={sortKey === col.key ? sortDir : null} />
+                        </button>
+
+                        {/* Search Input for Order ID */}
+                        {col.type === "text" && (
+                          <div className="relative">
+                            <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
+                            <input
+                              type="text"
+                              placeholder="Search Order ID..."
+                              value={orderIdSearch}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => setOrderIdSearch(e.target.value)}
+                              className="w-full pl-8 pr-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 placeholder:text-slate-500 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-normal"
+                            />
+                          </div>
+                        )}
+
+                        {/* Select Dropdown Filters */}
+                        {col.type === "select" && (
+                          <select
+                            value={col.key === "orderStatus" ? orderStatusFilter : paymentStatusFilter}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              col.key === "orderStatus"
+                                ? setOrderStatusFilter(e.target.value)
+                                : setPaymentStatusFilter(e.target.value)
+                            }
+                            className="w-full py-1 px-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-normal"
+                          >
+                            {col.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option === "ALL" ? "All" : option}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                {/* Skeleton Loading Rows */}
+                {visibleOrders === null && <TableRowsSkeleton rows={6} columnsCount={COLUMNS.length} />}
+
+                {/* Empty State */}
+                {visibleOrders?.length === 0 && (
+                  <tr>
+                    <td colSpan={COLUMNS.length} className="p-12 text-center text-slate-500 dark:text-slate-400">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <PackageIcon className="w-10 h-10 text-slate-400 dark:text-slate-600 stroke-1" />
+                        <p className="font-semibold text-slate-700 dark:text-slate-300 text-base">No orders found</p>
+                        <p className="text-xs">Try adjusting your status filter or search parameters.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+
+                {/* Orders Data Rows */}
+                {visibleOrders?.map((order) => {
+                  const statusCfg = ORDER_STATUS_CONFIG[order.orderStatus] || ORDER_STATUS_CONFIG.PENDING;
+                  const payCfg = PAYMENT_STATUS_CONFIG[order.paymentStatus] || PAYMENT_STATUS_CONFIG.UNPAID;
+
+                  return (
+                    <tr
+                      key={order.id}
+                      onClick={() => setSelectedOrderId(order.id)}
+                      className="hover:bg-amber-500/5 dark:hover:bg-slate-800/40 cursor-pointer transition-colors duration-150"
+                    >
+                      {/* Order ID */}
+                      <td className="p-4 font-mono font-semibold text-slate-900 dark:text-amber-400">
+                        {order.id}
+                      </td>
+
+                      {/* Status */}
+                      <td className="p-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`} />
+                          {order.orderStatus}
+                        </span>
+                      </td>
+
+                      {/* Payment */}
+                      <td className="p-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${payCfg.badgeClass}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${payCfg.dotClass}`} />
+                          {order.paymentStatus}
+                        </span>
+                      </td>
+
+                      {/* Items count */}
+                      <td className="p-4 text-slate-600 dark:text-slate-300">
+                        {order.orderItems?.length ?? 0}
+                      </td>
+
+                      {/* Total */}
+                      <td className="p-4 font-semibold text-slate-900 dark:text-white">
+                        {order.currency?.currencySymbol || "SAR"} {order.grandTotal?.toLocaleString()}
+                      </td>
+
+                      {/* Delivery date */}
+                      <td className="p-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                        {order.deliveryDate}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </motion.section>
+      </motion.div>
+
+      {/* Slide-over Detail Modal with AnimatePresence */}
+      <AnimatePresence mode="wait">
+        {selectedOrderId && (
+          <OrderDetailPanel
+            key={selectedOrderId}
+            orderId={selectedOrderId}
+            onClose={() => setSelectedOrderId(null)}
+          />
+        )}
+      </AnimatePresence>
+    </MainLayout>
   );
 }
