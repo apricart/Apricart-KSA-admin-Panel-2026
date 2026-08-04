@@ -6,10 +6,12 @@
   :root {
     --bg-primary: #f8fafc;
     --text-primary: #0f172a;
+    --apricart-navy: #0B1B3D;
+    --apricart-gold: #FFC500;
   }
 
   html.dark {
-    --bg-primary: #0b0f17;
+    --bg-primary: #07122b;
     --text-primary: #f8fafc;
     color-scheme: dark;
   }
@@ -25,6 +27,33 @@
     margin: 0;
     min-height: 100vh;
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Global Cursor Pointer Rules for Hover */
+  button,
+  a,
+  select,
+  summary,
+  label,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  .cursor-pointer,
+  [onClick],
+  tr.cursor-pointer,
+  div.cursor-pointer,
+  span.cursor-pointer {
+    cursor: pointer !important;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  button[disabled] {
+    cursor: not-allowed !important;
   }
 }
 
