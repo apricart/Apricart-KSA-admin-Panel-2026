@@ -1,5 +1,14 @@
 {
+  "rewrites": [
+    {
+      "source": "/api-proxy/:path*",
+      "destination": "http://185.164.25.196:8081/v1/:path*"
+    }
+  ],
   "routes": [
+    {
+      "handle": "filesystem"
+    },
     {
       "src": "/[^.]*",
       "dest": "/index.html"

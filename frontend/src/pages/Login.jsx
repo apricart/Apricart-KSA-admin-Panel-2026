@@ -62,15 +62,9 @@ export default function Login() {
         className="w-full max-w-md relative z-10"
       >
         {/* Card Form */}
-        <div className="p-8 md:p-10 pt-7 md:pt-8 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-[#0B1B3D]/10">
+        <div className="p-8 md:p-10 pt-5 md:pt-6 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-[#0B1B3D]/10">
           {/* Apricart Brand Header */}
-          <div className="flex flex-col items-center text-center mb-8">
-            <motion.div
-              whileHover={{ scale: 1.05, rotate: 2 }}
-              className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#0B1B3D] via-[#0F2654] to-[#1A3875] text-[#FFC500] font-black text-2xl shadow-lg shadow-[#0B1B3D]/30 flex items-center justify-center mb-3 border border-[#FFC500]/30 cursor-pointer"
-            >
-              A
-            </motion.div>
+          <div className="flex flex-col items-center text-center mb-6">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1B3D]">
               Apricart <span className="text-[#FFC500] font-black">KSA</span>
             </h1>
