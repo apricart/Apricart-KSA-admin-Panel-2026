@@ -12,7 +12,7 @@ import {
 
 const NAV_ITEMS = [
   { label: "Orders Dashboard", path: "/", icon: DashboardIcon, active: true },
-  { label: "Products", path: "/products", icon: ProductsIcon, badge: "Soon" },
+  { label: "Products", path: "/products", icon: ProductsIcon },
   { label: "Customers", path: "/customers", icon: UsersIcon, badge: "Soon" },
   { label: "Settings", path: "/settings", icon: SettingsIcon, badge: "Soon" },
 ];

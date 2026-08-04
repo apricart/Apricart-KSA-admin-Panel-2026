@@ -116,18 +116,8 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Password Field Header & Input */}
+            {/* Password Field & Input */}
             <div className="space-y-1.5">
-              <div className="flex justify-end">
-                <a
-                  href="#forgot"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-xs font-semibold text-slate-500 hover:text-[#0B1B3D] transition-colors cursor-pointer"
-                >
-                  Forgot Password?
-                </a>
-              </div>
-
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors duration-200">
                   <LockIcon className={passwordFocused ? "text-[#0B1B3D]" : "text-slate-400"} />

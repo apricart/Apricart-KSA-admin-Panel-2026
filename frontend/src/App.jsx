@@ -4,6 +4,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ProductsAndCategories from "./pages/ProductsAndCategories";
 
 export default function App() {
   return (
@@ -17,6 +18,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <ProtectedRoute>
+                  <ProductsAndCategories />
                 </ProtectedRoute>
               }
             />
