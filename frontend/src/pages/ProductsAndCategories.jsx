@@ -8,6 +8,8 @@ import {
   SearchIcon,
   CloseIcon,
 } from "../components/icons";
+import Toast from "../components/Toast";
+import { toast } from "react-hot-toast";
 
 // Icons
 function UploadIcon({ className }) {
@@ -31,6 +33,86 @@ function TrashIcon({ className }) {
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
+  );
+}
+
+// Skeleton loading components
+function CategorySkeleton() {
+  return (
+    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-sm animate-pulse flex flex-col justify-between h-[340px]">
+      <div>
+        <div className="w-full h-36 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4" />
+        <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4 mb-2" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2 ml-auto mb-4" />
+        <div className="flex gap-2">
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-14" />
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-20" />
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-12" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg flex-1" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-10" />
+      </div>
+    </div>
+  );
+}
+
+function SubcategorySkeleton() {
+  return (
+    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-sm animate-pulse flex flex-col justify-between h-[340px]">
+      <div>
+        <div className="w-full h-36 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4" />
+        <div className="flex justify-between items-center mb-2">
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-16" />
+        </div>
+        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-1/3 ml-auto mb-4" />
+        <div className="flex gap-2">
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-12" />
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-24" />
+          <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-full w-16" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg flex-1" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-10" />
+      </div>
+    </div>
+  );
+}
+
+function ProductSkeleton() {
+  return (
+    <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-sm animate-pulse flex flex-col justify-between h-[450px]">
+      <div>
+        <div className="w-full h-36 bg-slate-200 dark:bg-slate-800 rounded-xl mb-4" />
+        <div className="flex justify-between items-center mb-2">
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-md w-24" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-16" />
+        </div>
+        <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4 mb-2" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2 ml-auto mb-3" />
+        <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-md w-full mb-1" />
+        <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-md w-5/6 mb-4" />
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-10" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-14" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12" />
+        </div>
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 mb-2">
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-2/3" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-20" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg flex-1" />
+        <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-lg w-10" />
+      </div>
+    </div>
   );
 }
 
@@ -65,6 +147,10 @@ export default function ProductsAndCategories() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Custom Delete Modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { type, id, name }
 
   // Subcategory Form Modals state
   const [isAddSubModalOpen, setIsAddSubModalOpen] = useState(false);
@@ -332,8 +418,9 @@ export default function ProductsAndCategories() {
       setIsAddModalOpen(false);
       resetCategoryForm();
       fetchCategories();
+      toast.success("Category created successfully!");
     } catch (err) {
-      setError("Failed to create category.");
+      toast.error("Failed to create category.");
     }
   };
 
@@ -355,21 +442,16 @@ export default function ProductsAndCategories() {
       setIsEditModalOpen(false);
       resetCategoryForm();
       fetchCategories();
+      toast.success("Category updated successfully!");
     } catch (err) {
-      setError("Failed to update category.");
+      toast.error("Failed to update category.");
     }
   };
 
   // Delete Category
-  const handleDeleteCategory = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
-    setError("");
-    try {
-      await categoryService.deleteCategory(id);
-      fetchCategories();
-    } catch (err) {
-      setError("Failed to delete category.");
-    }
+  const handleDeleteCategory = (id, name) => {
+    setDeleteTarget({ type: "category", id, name });
+    setIsDeleteModalOpen(true);
   };
 
   // Category Image Upload
@@ -380,8 +462,9 @@ export default function ProductsAndCategories() {
     try {
       await categoryService.uploadCategoryImage(id, file);
       fetchCategories();
+      toast.success("Category image uploaded successfully!");
     } catch (err) {
-      setError("Failed to upload category image.");
+      toast.error("Failed to upload category image.");
     } finally {
       setUploadingId(null);
     }
@@ -403,8 +486,9 @@ export default function ProductsAndCategories() {
       setIsAddSubModalOpen(false);
       resetSubcategoryForm();
       fetchSubcategories();
+      toast.success("Subcategory created successfully!");
     } catch (err) {
-      setError("Failed to create subcategory.");
+      toast.error("Failed to create subcategory.");
     }
   };
 
@@ -425,21 +509,16 @@ export default function ProductsAndCategories() {
       setIsEditSubModalOpen(false);
       resetSubcategoryForm();
       fetchSubcategories();
+      toast.success("Subcategory updated successfully!");
     } catch (err) {
-      setError("Failed to update subcategory.");
+      toast.error("Failed to update subcategory.");
     }
   };
 
   // Delete Subcategory
-  const handleDeleteSubcategory = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this subcategory?")) return;
-    setError("");
-    try {
-      await subcategoryService.deleteSubcategory(id);
-      fetchSubcategories();
-    } catch (err) {
-      setError("Failed to delete subcategory.");
-    }
+  const handleDeleteSubcategory = (id, name) => {
+    setDeleteTarget({ type: "subcategory", id, name });
+    setIsDeleteModalOpen(true);
   };
 
   // Subcategory Image Upload
@@ -450,8 +529,9 @@ export default function ProductsAndCategories() {
     try {
       await subcategoryService.uploadSubcategoryImage(id, file);
       fetchSubcategories();
+      toast.success("Subcategory image uploaded successfully!");
     } catch (err) {
-      setError("Failed to upload subcategory image.");
+      toast.error("Failed to upload subcategory image.");
     } finally {
       setUploadingSubId(null);
     }
@@ -484,8 +564,9 @@ export default function ProductsAndCategories() {
       setIsAddProdModalOpen(false);
       resetProductForm();
       fetchProducts();
+      toast.success("Product created successfully!");
     } catch (err) {
-      setProductsError("Failed to create product. Make sure SKU is unique.");
+      toast.error("Failed to create product. Make sure SKU is unique.");
     }
   };
 
@@ -517,8 +598,9 @@ export default function ProductsAndCategories() {
       setIsEditProdModalOpen(false);
       resetProductForm();
       fetchProducts();
+      toast.success("Product updated successfully!");
     } catch (err) {
-      setProductsError("Failed to update product details.");
+      toast.error("Failed to update product details.");
     }
   };
 
@@ -527,8 +609,9 @@ export default function ProductsAndCategories() {
     try {
       await productService.updateProductStatus(id, !currentStatus);
       fetchProducts();
+      toast.success("Product status updated successfully!");
     } catch (err) {
-      setProductsError("Failed to update product status.");
+      toast.error("Failed to update product status.");
     }
   };
 
@@ -539,21 +622,16 @@ export default function ProductsAndCategories() {
     try {
       await productService.updateProductPosition(id, numericPos);
       fetchProducts();
+      toast.success(`Product position updated to ${numericPos}!`);
     } catch (err) {
-      setProductsError("Failed to update product position.");
+      toast.error("Failed to update product position.");
     }
   };
 
   // Delete Product
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
-    setProductsError("");
-    try {
-      await productService.deleteProduct(id);
-      fetchProducts();
-    } catch (err) {
-      setProductsError("Failed to delete product.");
-    }
+  const handleDeleteProduct = (id, name) => {
+    setDeleteTarget({ type: "product", id, name });
+    setIsDeleteModalOpen(true);
   };
 
   // Product Image Upload
@@ -564,10 +642,37 @@ export default function ProductsAndCategories() {
     try {
       await productService.uploadProductImage(id, file);
       fetchProducts();
+      toast.success("Product image uploaded successfully!");
     } catch (err) {
-      setProductsError("Failed to upload product image.");
+      toast.error("Failed to upload product image.");
     } finally {
       setUploadingProdId(null);
+    }
+  };
+
+  // Confirm delete logic handler
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { type, id, name } = deleteTarget;
+    setIsDeleteModalOpen(false);
+    try {
+      if (type === "category") {
+        await categoryService.deleteCategory(id);
+        toast.success(`Category "${name}" deleted successfully!`);
+        fetchCategories();
+      } else if (type === "subcategory") {
+        await subcategoryService.deleteSubcategory(id);
+        toast.success(`Subcategory "${name}" deleted successfully!`);
+        fetchSubcategories();
+      } else if (type === "product") {
+        await productService.deleteProduct(id);
+        toast.success(`Product "${name}" deleted successfully!`);
+        fetchProducts();
+      }
+    } catch (err) {
+      toast.error(`Failed to delete ${type}.`);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -804,9 +909,10 @@ export default function ProductsAndCategories() {
             </form>
 
             {categoriesLoading ? (
-              <div className="flex justify-center items-center py-20 text-slate-500">
-                <RefreshIcon className="animate-spin text-amber-500 w-6 h-6 mr-2" />
-                Loading Categories...
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <CategorySkeleton key={i} />
+                ))}
               </div>
             ) : categories.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl">
@@ -899,7 +1005,7 @@ export default function ProductsAndCategories() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteCategory(cat.id)}
+                        onClick={() => handleDeleteCategory(cat.id, cat.name)}
                         className="py-1.5 px-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center cursor-pointer"
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -963,9 +1069,10 @@ export default function ProductsAndCategories() {
             </div>
 
             {subcategoriesLoading ? (
-              <div className="flex justify-center items-center py-20 text-slate-500">
-                <RefreshIcon className="animate-spin text-amber-500 w-6 h-6 mr-2" />
-                Loading Subcategories...
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <SubcategorySkeleton key={i} />
+                ))}
               </div>
             ) : filteredSubcategories.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl">
@@ -1058,7 +1165,7 @@ export default function ProductsAndCategories() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteSubcategory(sub.id)}
+                        onClick={() => handleDeleteSubcategory(sub.id, sub.name)}
                         className="py-1.5 px-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center cursor-pointer"
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -1132,9 +1239,10 @@ export default function ProductsAndCategories() {
             )}
 
             {productsLoading ? (
-              <div className="flex justify-center items-center py-20 text-slate-500">
-                <RefreshIcon className="animate-spin text-amber-500 w-6 h-6 mr-2" />
-                Loading Products...
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ProductSkeleton key={i} />
+                ))}
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl">
@@ -1258,7 +1366,7 @@ export default function ProductsAndCategories() {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteProduct(prod.id)}
+                        onClick={() => handleDeleteProduct(prod.id, prod.title)}
                         className="py-1.5 px-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 text-rose-600 font-bold text-xs flex items-center justify-center cursor-pointer"
                       >
                         <TrashIcon className="w-4 h-4" />
@@ -2178,6 +2286,56 @@ export default function ProductsAndCategories() {
             </div>
           )}
         </AnimatePresence>
+
+        {/* MODAL: Custom Delete Confirmation */}
+        <AnimatePresence>
+          {isDeleteModalOpen && deleteTarget && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="w-full max-w-md bg-white dark:bg-[#131926] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-hidden text-center"
+              >
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-950/30 mb-4">
+                  <svg className="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                
+                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">
+                  Confirm Delete
+                </h3>
+                
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 px-2">
+                  Are you sure you want to delete the {deleteTarget.type} <span className="font-bold text-slate-800 dark:text-slate-200">"{deleteTarget.name}"</span>? This action cannot be undone.
+                </p>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDeleteModalOpen(false);
+                      setDeleteTarget(null);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 cursor-pointer"
+                  >
+                    Delete Permanently
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        <Toast />
       </motion.div>
     </MainLayout>
   );
