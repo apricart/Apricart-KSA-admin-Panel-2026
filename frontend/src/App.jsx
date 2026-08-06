@@ -4,6 +4,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProductsAndCategories from "./pages/ProductsAndCategories";
 import Banners from "./pages/Banners";
 
@@ -16,6 +17,22 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route
               path="/"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
               element={
                 <ProtectedRoute>
                   <Dashboard />

@@ -197,7 +197,12 @@ export default function Dashboard() {
   };
 
   return (
-    <MainLayout onRefresh={fetchOrders} refreshing={loading}>
+    <MainLayout
+      onRefresh={fetchOrders}
+      refreshing={loading}
+      headerTitle="Orders Dashboard"
+      headerSubtitle="Track, filter, and manage customer order fulfillments"
+    >
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}

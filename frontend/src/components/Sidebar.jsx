@@ -4,6 +4,7 @@ import {
   DashboardIcon,
   ProductsIcon,
   BannerIcon,
+  PackageIcon,
   UsersIcon,
   SettingsIcon,
   ChevronLeftIcon,
@@ -12,7 +13,8 @@ import {
 } from "./icons";
 
 const NAV_ITEMS = [
-  { label: "Orders Dashboard", path: "/", icon: DashboardIcon },
+  { label: "Admin Panel", path: "/admin", icon: DashboardIcon },
+  { label: "Orders Dashboard", path: "/orders", icon: PackageIcon },
   { label: "Products", path: "/products", icon: ProductsIcon },
   { label: "Banners", path: "/banners", icon: BannerIcon },
   { label: "Customers", path: "/customers", icon: UsersIcon, badge: "Soon" },

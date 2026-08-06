@@ -25,7 +25,7 @@ function getInitials(name, email) {
   return "SG";
 }
 
-export default function Header({ onMenuClick, onRefresh, refreshing }) {
+export default function Header({ onMenuClick, onRefresh, refreshing, title, subtitle }) {
   const { adminName, adminEmail, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -61,10 +61,10 @@ export default function Header({ onMenuClick, onRefresh, refreshing }) {
           </button>
           <div>
             <h1 className="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Orders Dashboard
+              {title || "Admin Panel"}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-              Track, filter, and manage customer order fulfillments
+              {subtitle || "Track, filter, and manage customer order fulfillments"}
             </p>
           </div>
         </div>

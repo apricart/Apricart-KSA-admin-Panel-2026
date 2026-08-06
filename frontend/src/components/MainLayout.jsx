@@ -3,7 +3,7 @@ import { useTheme } from "../context/ThemeContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-export default function MainLayout({ children, onRefresh, refreshing }) {
+export default function MainLayout({ children, onRefresh, refreshing, headerTitle, headerSubtitle }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { theme } = useTheme();
@@ -38,6 +38,8 @@ export default function MainLayout({ children, onRefresh, refreshing }) {
           onMenuClick={() => setSidebarOpen(true)}
           onRefresh={onRefresh}
           refreshing={refreshing}
+          title={headerTitle}
+          subtitle={headerSubtitle}
         />
 
         <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
