@@ -49,7 +49,7 @@ export default function Header({ onMenuClick, onRefresh, refreshing }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 h-16 bg-white/85 dark:bg-[#131926]/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 flex items-center justify-between transition-colors duration-200">
+      <header className="sticky top-0 z-40 h-16 bg-white/90 dark:bg-[#131926]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 flex items-center justify-between transition-colors duration-200 shadow-xs">
         {/* Left side: Mobile menu toggle + Title */}
         <div className="flex items-center gap-3">
           <button

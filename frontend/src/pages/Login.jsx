@@ -65,10 +65,12 @@ export default function Login() {
         <div className="p-8 md:p-10 pt-5 md:pt-6 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-[#0B1B3D]/10">
           {/* Apricart Brand Header */}
           <div className="flex flex-col items-center text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#0B1B3D]">
-              Apricart <span className="text-[#FFC500] font-black">KSA</span>
-            </h1>
-            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
+            <img
+              src="/ApricartBlueLogo.png"
+              alt="Apricart KSA"
+              className="h-11 w-auto object-contain mb-1.5"
+            />
+            <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
               Admin Portal Sign In
             </p>
           </div>

@@ -49,37 +49,25 @@ export default function Sidebar({ isOpen, onClose, collapsed, setCollapsed }) {
         } transition-transform duration-300 md:transition-none`}
       >
         {/* Brand Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-[#152B59] overflow-hidden">
-          <div className="flex items-center gap-3">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FFC500] to-[#F97316] flex items-center justify-center text-[#0B1B3D] font-black text-xl shadow-lg shadow-[#FFC500]/20 shrink-0 cursor-pointer border border-[#FFC500]/40"
-            >
-              A
-            </motion.div>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col whitespace-nowrap"
-              >
-                <span className="font-bold tracking-tight text-white leading-none text-lg">
-                  Apricart <span className="text-[#FFC500] font-black text-sm">KSA</span>
-                </span>
-                <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider mt-1">
-                  Admin Panel
-                </span>
-              </motion.div>
-            )}
-          </div>
+        <div className="h-16 px-4 flex items-center justify-center border-b border-[#152B59] overflow-hidden relative">
+          {collapsed ? (
+            <img
+              src="/WebIconLogo.png"
+              alt="Apricart Logo"
+              className="w-9 h-9 object-contain shrink-0 mx-auto"
+            />
+          ) : (
+            <img
+              src="/ApricartWhiteLogo.png"
+              alt="Apricart KSA"
+              className="h-8 max-w-[180px] object-contain mx-auto"
+            />
+          )}
 
           {/* Close button for mobile */}
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="md:hidden absolute right-3 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
           >
             <CloseIcon />
           </button>

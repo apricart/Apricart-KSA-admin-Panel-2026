@@ -19,7 +19,7 @@ export default function MainLayout({ children, onRefresh, refreshing }) {
   }, [theme]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0d0f17] text-slate-900 dark:text-slate-100 flex transition-colors duration-200 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0d0f17] text-slate-900 dark:text-slate-100 flex transition-colors duration-200">
       {/* Responsive Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
