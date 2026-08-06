@@ -64,11 +64,16 @@ export const categoryService = {
   uploadCategoryImage: async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post(`categories/image/update/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    formData.append("image", file);
+    try {
+      return await apiClient.post(`auth/open/categories/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch {
+      return await apiClient.post(`categories/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
   },
 
   /**

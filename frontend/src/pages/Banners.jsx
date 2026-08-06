@@ -19,7 +19,7 @@ import {
   XCircleIcon,
   ImageIcon,
 } from "../components/icons";
-import { Skeleton } from "../components/Skeleton";
+import { Skeleton, TableRowsSkeleton } from "../components/Skeleton";
 
 const BONES_LEVELS = ["ONE", "TWO", "THREE", "FOUR"];
 const BONES_POSITIONS = ["TOP", "MIDDLE", "BOTTOM", "SIDEBAR", "FOOTER"];
@@ -402,118 +402,120 @@ export default function Banners() {
         </div>
 
         {/* Content Area: Grid View vs Table View */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] space-y-4 animate-pulse">
-                <Skeleton variant="rounded" width="100%" height={140} className="rounded-xl" />
-                <Skeleton variant="text" width="60%" height={16} />
-                <Skeleton variant="text" width="40%" height={12} />
-              </div>
-            ))}
-          </div>
-        ) : filteredBanners.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-500 dark:text-slate-400 space-y-3">
-            <BannerIcon className="w-12 h-12 mx-auto text-slate-400 dark:text-slate-600" />
-            <p className="font-bold text-slate-700 dark:text-slate-200 text-base">No Banners Found</p>
-            <p className="text-xs">Click "Create Banner" to add your first promotional banner.</p>
-          </div>
-        ) : viewMode === "grid" ? (
-          /* Grid Cards View */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredBanners.map((banner) => (
-              <motion.div
-                key={banner.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -3 }}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-sm overflow-hidden flex flex-col justify-between"
-              >
-                {/* Banner Image Preview Container */}
-                <div className="relative h-44 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden group">
-                  {banner.image || banner.imageUrl ? (
-                    <img
-                      src={banner.image || banner.imageUrl}
-                      alt={banner.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-slate-400">
-                      <ImageIcon className="w-10 h-10" />
-                      <span className="text-[11px] font-semibold">No Image Uploaded</span>
-                    </div>
-                  )}
+        {/* Content Area: Grid View vs Table View */}
+        {viewMode === "grid" ? (
+          loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] space-y-4 animate-pulse">
+                  <Skeleton variant="rounded" width="100%" height={140} className="rounded-xl" />
+                  <Skeleton variant="text" width="60%" height={16} />
+                  <Skeleton variant="text" width="40%" height={12} />
+                </div>
+              ))}
+            </div>
+          ) : filteredBanners.length === 0 ? (
+            <div className="p-12 text-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-500 dark:text-slate-400 space-y-3">
+              <BannerIcon className="w-12 h-12 mx-auto text-slate-400 dark:text-slate-600" />
+              <p className="font-bold text-slate-700 dark:text-slate-200 text-base">No Banners Found</p>
+              <p className="text-xs">Click "Create Banner" to add your first promotional banner.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredBanners.map((banner) => (
+                <motion.div
+                  key={banner.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -3 }}
+                  className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-sm overflow-hidden flex flex-col justify-between"
+                >
+                  {/* Banner Image Preview Container */}
+                  <div className="relative h-44 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden group">
+                    {banner.image || banner.imageUrl ? (
+                      <img
+                        src={banner.image || banner.imageUrl}
+                        alt={banner.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <ImageIcon className="w-10 h-10" />
+                        <span className="text-[11px] font-semibold">No Image Uploaded</span>
+                      </div>
+                    )}
 
-                  {/* Top Status & Level Badges */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                    <button
-                      onClick={() => handleToggleStatus(banner)}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md cursor-pointer transition-all ${
-                        banner.status
-                          ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
-                          : "bg-rose-500/20 text-rose-400 border-rose-500/40"
-                      }`}
-                    >
-                      {banner.status ? "Active" : "Inactive"}
-                    </button>
-                    {banner.level && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-amber-400 border border-amber-500/30 backdrop-blur-md">
-                        Lvl: {banner.level}
-                      </span>
+                    {/* Top Status & Level Badges */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleToggleStatus(banner)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border backdrop-blur-md cursor-pointer transition-all ${
+                          banner.status
+                            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                            : "bg-rose-500/20 text-rose-400 border-rose-500/40"
+                        }`}
+                      >
+                        {banner.status ? "Active" : "Inactive"}
+                      </button>
+                      {banner.level && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-amber-400 border border-amber-500/30 backdrop-blur-md">
+                          Lvl: {banner.level}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Position Badge */}
+                    {banner.position && (
+                      <div className="absolute top-3 right-3">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-sky-400 border border-sky-500/30 backdrop-blur-md">
+                          {banner.position}
+                        </span>
+                      </div>
                     )}
                   </div>
 
-                  {/* Position Badge */}
-                  {banner.position && (
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/80 text-sky-400 border border-sky-500/30 backdrop-blur-md">
-                        {banner.position}
-                      </span>
+                  {/* Card Content */}
+                  <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
+                        {banner.name}
+                      </h3>
+                      {banner.arabicName && (
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 dir-rtl font-sans">
+                          {banner.arabicName}
+                        </p>
+                      )}
                     </div>
-                  )}
-                </div>
 
-                {/* Card Content */}
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
-                      {banner.name}
-                    </h3>
-                    {banner.arabicName && (
-                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5 dir-rtl font-sans">
-                        {banner.arabicName}
-                      </p>
-                    )}
+                    {/* Action Buttons */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => handleOpenImageModal(banner)}
+                        className="flex-1 py-1.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 hover:text-amber-500 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <UploadIcon />
+                        <span>Image</span>
+                      </button>
+                      <button
+                        onClick={() => handleOpenEditModal(banner)}
+                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+                        title="Edit Banner"
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        onClick={() => setDeleteTargetBanner(banner)}
+                        className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 transition-colors"
+                        title="Delete Banner"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => handleOpenImageModal(banner)}
-                      className="flex-1 py-1.5 px-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500/10 dark:hover:bg-amber-500/20 text-slate-700 dark:text-slate-300 hover:text-amber-500 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                    >
-                      <UploadIcon />
-                      <span>Image</span>
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditModal(banner)}
-                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
-                      title="Edit Banner"
-                    >
-                      <EditIcon />
-                    </button>
-                    <button
-                      onClick={() => setDeleteTargetBanner(banner)}
-                      className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 transition-colors"
-                      title="Delete Banner"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )
         ) : (
           /* Data Table View */
           <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs overflow-hidden">
@@ -531,68 +533,78 @@ export default function Banners() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-                  {filteredBanners.map((banner) => (
-                    <tr key={banner.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                      <td className="p-4">
-                        <div className="w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center">
-                          {banner.image || banner.imageUrl ? (
-                            <img src={banner.image || banner.imageUrl} alt={banner.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <ImageIcon className="w-5 h-5 text-slate-400" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4 font-bold text-slate-900 dark:text-white">{banner.name}</td>
-                      <td className="p-4 text-slate-600 dark:text-slate-300 font-sans">{banner.arabicName || "—"}</td>
-                      <td className="p-4">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                          {banner.level || "ONE"}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-500 border border-sky-500/20">
-                          {banner.position || "TOP"}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <button
-                          onClick={() => handleToggleStatus(banner)}
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold border cursor-pointer ${
-                            banner.status
-                              ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
-                              : "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                          }`}
-                        >
-                          {banner.status ? "Active" : "Inactive"}
-                        </button>
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleOpenImageModal(banner)}
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
-                            title="Upload Image"
-                          >
-                            <UploadIcon />
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditModal(banner)}
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
-                            title="Edit"
-                          >
-                            <EditIcon />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTargetBanner(banner)}
-                            className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors"
-                            title="Delete"
-                          >
-                            <TrashIcon />
-                          </button>
-                        </div>
+                  {loading ? (
+                    <TableRowsSkeleton rows={5} columnsCount={7} />
+                  ) : filteredBanners.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-slate-400 text-xs font-semibold">
+                        No Banners Found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredBanners.map((banner) => (
+                      <tr key={banner.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="p-4">
+                          <div className="w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center">
+                            {banner.image || banner.imageUrl ? (
+                              <img src={banner.image || banner.imageUrl} alt={banner.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-5 h-5 text-slate-400" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 font-bold text-slate-900 dark:text-white">{banner.name}</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-300 font-sans">{banner.arabicName || "—"}</td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            {banner.level || "ONE"}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-500 border border-sky-500/20">
+                            {banner.position || "TOP"}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => handleToggleStatus(banner)}
+                            className={`px-2.5 py-1 rounded-full text-xs font-semibold border cursor-pointer ${
+                              banner.status
+                                ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                                : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                            }`}
+                          >
+                            {banner.status ? "Active" : "Inactive"}
+                          </button>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenImageModal(banner)}
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
+                              title="Upload Image"
+                            >
+                              <UploadIcon />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(banner)}
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
+                              title="Edit"
+                            >
+                              <EditIcon />
+                            </button>
+                            <button
+                              onClick={() => setDeleteTargetBanner(banner)}
+                              className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors"
+                              title="Delete"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

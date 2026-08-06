@@ -56,24 +56,16 @@ export function TableRowsSkeleton({ rows = 5, columnsCount = 6 }) {
     <>
       {[...Array(rows)].map((_, rowIndex) => (
         <tr key={rowIndex} className="border-b border-slate-100 dark:border-slate-800/60">
-          <td className="p-4">
-            <Skeleton variant="text" width={110} height={14} />
-          </td>
-          <td className="p-4">
-            <Skeleton variant="rounded" width={80} height={24} className="rounded-full" />
-          </td>
-          <td className="p-4">
-            <Skeleton variant="rounded" width={70} height={24} className="rounded-full" />
-          </td>
-          <td className="p-4">
-            <Skeleton variant="text" width={30} height={14} />
-          </td>
-          <td className="p-4">
-            <Skeleton variant="text" width={85} height={14} />
-          </td>
-          <td className="p-4">
-            <Skeleton variant="text" width={95} height={14} />
-          </td>
+          {[...Array(columnsCount)].map((_, colIndex) => (
+            <td key={colIndex} className="p-4">
+              <Skeleton
+                variant={colIndex === 0 ? "rounded" : "text"}
+                width={colIndex === 0 ? 40 : colIndex === 1 ? 120 : 75}
+                height={colIndex === 0 ? 32 : 14}
+                className={colIndex === 0 ? "rounded-lg" : ""}
+              />
+            </td>
+          ))}
         </tr>
       ))}
     </>
@@ -145,5 +137,53 @@ export function OrderDetailSkeleton() {
     </div>
   );
 }
+
+// Chart Skeleton Component
+export function ChartSkeleton() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#131926] shadow-sm flex flex-col justify-between space-y-4"
+    >
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text" width={140} height={18} />
+        <Skeleton variant="rounded" width={110} height={28} className="rounded-xl" />
+      </div>
+      <div className="w-full h-52 flex flex-col justify-end space-y-3 p-2">
+        <Skeleton variant="rounded" width="100%" height={160} className="rounded-xl opacity-60" />
+        <div className="flex justify-between pt-2">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} variant="text" width={24} height={10} />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// Category / Subcategory / Product Card Grid Skeleton Component
+export function CategorySkeleton() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#131926] shadow-sm flex flex-col justify-between space-y-4"
+    >
+      <Skeleton variant="rounded" width="100%" height={140} className="rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton variant="text" width="60%" height={16} />
+        <Skeleton variant="text" width="40%" height={12} />
+      </div>
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex gap-2">
+        <Skeleton variant="rounded" width="70%" height={32} className="rounded-lg" />
+        <Skeleton variant="rounded" width="30%" height={32} className="rounded-lg" />
+      </div>
+    </motion.div>
+  );
+}
+
+export const SubcategorySkeleton = CategorySkeleton;
+export const ProductSkeleton = CategorySkeleton;
 
 export default Skeleton;

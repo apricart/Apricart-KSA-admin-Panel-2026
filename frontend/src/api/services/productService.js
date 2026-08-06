@@ -19,11 +19,16 @@ export const productService = {
   uploadProductImage: async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post(`products/image/update/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    formData.append("image", file);
+    try {
+      return await apiClient.post(`auth/open/products/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch {
+      return await apiClient.post(`products/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
   },
 
   /**

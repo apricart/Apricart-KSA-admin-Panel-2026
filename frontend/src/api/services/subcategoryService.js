@@ -7,7 +7,15 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   getSubcategoriesByCategory: async (categoryId) => {
-    return apiClient.get(`subcategories/${categoryId}`);
+    try {
+      return await apiClient.get(`auth/open/subcategories/${categoryId}`);
+    } catch {
+      try {
+        return await apiClient.get(`auth/open/subcategories/category/${categoryId}`);
+      } catch {
+        return await apiClient.get(`subcategories/${categoryId}`);
+      }
+    }
   },
 
   /**
@@ -15,7 +23,11 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   getActiveSubcategories: async () => {
-    return apiClient.get("subcategories/active");
+    try {
+      return await apiClient.get("auth/open/subcategories/active");
+    } catch {
+      return await apiClient.get("subcategories/active");
+    }
   },
 
   /**
@@ -24,7 +36,11 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   getSubcategoryById: async (id) => {
-    return apiClient.get(`subcategories/${id}`);
+    try {
+      return await apiClient.get(`auth/open/subcategories/id/${id}`);
+    } catch {
+      return await apiClient.get(`subcategories/${id}`);
+    }
   },
 
   /**
@@ -33,7 +49,11 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   createSubcategory: async (subcategoryData) => {
-    return apiClient.post("subcategories", subcategoryData);
+    try {
+      return await apiClient.post("auth/open/subcategories", subcategoryData);
+    } catch {
+      return await apiClient.post("subcategories", subcategoryData);
+    }
   },
 
   /**
@@ -42,7 +62,11 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   updateSubcategory: async (subcategoryData) => {
-    return apiClient.put("subcategories", subcategoryData);
+    try {
+      return await apiClient.put("auth/open/subcategories", subcategoryData);
+    } catch {
+      return await apiClient.put("subcategories", subcategoryData);
+    }
   },
 
   /**
@@ -51,7 +75,11 @@ export const subcategoryService = {
    * @returns {Promise} Axios response promise
    */
   deleteSubcategory: async (id) => {
-    return apiClient.delete(`subcategories/${id}`);
+    try {
+      return await apiClient.delete(`auth/open/subcategories/${id}`);
+    } catch {
+      return await apiClient.delete(`subcategories/${id}`);
+    }
   },
 
   /**
@@ -63,11 +91,16 @@ export const subcategoryService = {
   uploadSubcategoryImage: async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);
-    return apiClient.post(`subcategories/image/update/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    formData.append("image", file);
+    try {
+      return await apiClient.post(`auth/open/subcategories/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch {
+      return await apiClient.post(`subcategories/image/update/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
   },
 };
 
