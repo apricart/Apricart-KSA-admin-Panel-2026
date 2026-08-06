@@ -263,17 +263,15 @@ export default function Subcategories({ isTab = false }) {
           <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1">
             <button
               onClick={() => setSubViewMode("grid")}
-              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                subViewMode === "grid" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
-              }`}
+              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${subViewMode === "grid" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
+                }`}
             >
               <GridIcon />
             </button>
             <button
               onClick={() => setSubViewMode("table")}
-              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                subViewMode === "table" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
-              }`}
+              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${subViewMode === "table" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
+                }`}
             >
               <TableIcon />
             </button>
@@ -419,9 +417,8 @@ export default function Subcategories({ isTab = false }) {
                       <td className="p-4 font-mono text-slate-500">{sub.categoryId}</td>
                       <td className="p-4">{sub.level || "ONE"}</td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                          sub.status ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${sub.status ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                          }`}>
                           {sub.status ? "Active" : "Inactive"}
                         </span>
                       </td>

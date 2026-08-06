@@ -72,14 +72,10 @@ export const productService = {
    * Get products belonging to a Subcategory
    * GET {{baseUrl}}/v1/auth/open/products/subcategory/{{subcategory_id}}?warehouseId=1
    */
-  getProductsBySubcategory: async (subcategoryId, warehouseId = 1, params = { pageNo: 0, pageSize: 10 }) => {
-    try {
-      return await apiClient.get(`auth/open/products/subcategory/${subcategoryId}`, {
-        params: { warehouseId: warehouseId || 1, ...params },
-      });
-    } catch {
-      return await apiClient.get(`products/subcategory/${subcategoryId}`, { params });
-    }
+  getProductsBySubcategory: async (subcategoryId, warehouseId = 1) => {
+    return apiClient.get(`auth/open/products/subcategory/${subcategoryId}`, {
+      params: { warehouseId: warehouseId || 1 },
+    });
   },
 
   /**

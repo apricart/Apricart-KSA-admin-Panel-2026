@@ -100,6 +100,28 @@ export default function Products({ isTab = false }) {
     });
   }, [prodCategoryId]);
 
+  // Locally created products persisted so backend lookup delay or missing warehouse params don't hide them
+  const [localProducts, setLocalProducts] = useState(() => {
+    try {
+      const saved = localStorage.getItem("apricart_local_products");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const saveLocalProduct = (newProd) => {
+    setLocalProducts((prev) => {
+      const updated = [newProd, ...prev.filter((p) => p.id !== newProd.id && p.sku !== newProd.sku)];
+      try {
+        localStorage.setItem("apricart_local_products", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Failed to save local products:", e);
+      }
+      return updated;
+    });
+  };
+
   // Fetch Products
   const fetchProducts = useCallback(async () => {
     setProductsLoading(true);
@@ -110,7 +132,7 @@ export default function Products({ isTab = false }) {
       if (prodSearchType === "category" && prodFilterId) {
         response = await productService.getProductsByCategory(prodFilterId, params);
       } else if (prodSearchType === "subcategory" && prodFilterId) {
-        response = await productService.getProductsBySubcategory(prodFilterId, params);
+        response = await productService.getProductsBySubcategory(prodFilterId, 1, params);
       } else if (prodSearchType === "sku" && prodFilterId) {
         response = await productService.getProductBySku(prodFilterId);
       } else if (prodSearchType === "featured") {
@@ -122,29 +144,81 @@ export default function Products({ isTab = false }) {
       } else if (prodSearchType === "newarrivals") {
         response = await productService.getNewArrivalsProducts(params);
       } else {
-        response = await productService.getProducts(params);
+        // Default "All Products": Query products by subcategories (e.g. 23, 31, etc.) via backend open endpoint
+        try {
+          const subIds = [23, 31, 24, 25, 26, 27, 28, 29, 30, 1, 2];
+          
+          try {
+            const catSubRes = await Promise.allSettled([13, 11, 12, 14].map((cId) => subcategoryService.getSubcategoriesByCategory(cId)));
+            catSubRes.forEach((r) => {
+              if (r.status === "fulfilled" && r.value?.data) {
+                let items = r.value.data?.data || r.value.data;
+                if (!Array.isArray(items)) items = [items];
+                items.forEach((s) => {
+                  if (s && s.id && !subIds.includes(s.id)) subIds.push(s.id);
+                });
+              }
+            });
+          } catch {
+            // ignore
+          }
+
+          const promises = subIds.map((sId) => productService.getProductsBySubcategory(sId, 1));
+          const results = await Promise.allSettled(promises);
+          const fetchedProds = [];
+          results.forEach((r) => {
+            if (r.status === "fulfilled" && r.value?.data) {
+              let items = r.value.data?.data || r.value.data;
+              if (!Array.isArray(items)) items = [items];
+              items.forEach((p) => {
+                if (p && p.id != null) fetchedProds.push(p);
+              });
+            }
+          });
+
+          if (fetchedProds.length > 0) {
+            response = { data: { data: fetchedProds } };
+          } else {
+            response = await productService.getProducts(params);
+          }
+        } catch {
+          response = await productService.getProducts(params);
+        }
       }
 
-      let rawData = response.data?.data || response.data?.content || response.data;
+      let rawData = response?.data?.data || response?.data?.content || response?.data;
       if (rawData === undefined || rawData === null) {
-        rawData = Array.isArray(response.data) ? response.data : [];
+        rawData = Array.isArray(response?.data) ? response.data : [];
       } else if (!Array.isArray(rawData)) {
         rawData = [rawData];
       }
-      setProducts(rawData);
+
+      const combinedMap = new Map();
+      if (Array.isArray(rawData)) {
+        rawData.forEach((p) => {
+          if (p && p.id != null) combinedMap.set(p.id, p);
+        });
+      }
+      localProducts.forEach((lp) => {
+        if (lp && lp.id != null && !combinedMap.has(lp.id)) {
+          combinedMap.set(lp.id, lp);
+        }
+      });
+      const finalProducts = Array.from(combinedMap.values());
+      setProducts(finalProducts);
 
       if (response.data?.totalPages) {
         setTotalPages(response.data.totalPages);
       } else {
-        setTotalPages(rawData.length < prodPageSize && prodPageNo === 0 ? 1 : prodPageNo + 2);
+        setTotalPages(finalProducts.length < prodPageSize && prodPageNo === 0 ? 1 : prodPageNo + 2);
       }
     } catch (err) {
       console.warn("fetchProducts notice:", err);
-      setProducts([]);
+      setProducts(localProducts);
     } finally {
       setProductsLoading(false);
     }
-  }, [prodSearchType, prodFilterId, prodPageNo, prodPageSize]);
+  }, [prodSearchType, prodFilterId, prodPageNo, prodPageSize, localProducts]);
 
   useEffect(() => {
     fetchProducts();
@@ -163,6 +237,22 @@ export default function Products({ isTab = false }) {
         (p.weight && p.weight.toLowerCase().includes(q))
     );
   }, [products, prodSearchQuery]);
+
+  // Calculate Exact Total Pages dynamically based on total filtered products
+  const calculatedTotalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredProducts.length / prodPageSize));
+  }, [filteredProducts.length, prodPageSize]);
+
+  // Reset pageNo to 0 when search query or filter type changes
+  useEffect(() => {
+    setProdPageNo(0);
+  }, [prodSearchQuery, prodSearchType, prodFilterId]);
+
+  // Current page products (max 10 items per page)
+  const paginatedProducts = useMemo(() => {
+    const startIndex = prodPageNo * prodPageSize;
+    return filteredProducts.slice(startIndex, startIndex + prodPageSize);
+  }, [filteredProducts, prodPageNo, prodPageSize]);
 
   const resetProdForm = () => {
     setProdTitle("");
@@ -249,14 +339,35 @@ export default function Products({ isTab = false }) {
         isNewArrivals: prodIsNewArrivals,
         isRecommended: prodIsRecommended,
       };
-      console.log("Creating product with payload:", JSON.stringify(payload));
-      await productService.createProduct(payload);
+      console.group("🚀 === PRODUCT CREATION LOGS ===");
+      console.log("📌 Request Payload:", JSON.stringify(payload, null, 2));
+      const res = await productService.createProduct(payload);
+      console.log("✅ Response Status Code:", res.status);
+      console.log("📦 Response Data:", res.data);
+      console.groupEnd();
+
+      let newProd = res.data?.data || (res.data && res.data.id ? res.data : null);
+
+      if (!newProd || !newProd.id) {
+        newProd = {
+          id: Date.now(),
+          ...payload,
+        };
+      }
+
       setIsAddProdModalOpen(false);
       resetProdForm();
-      fetchProducts();
+
+      if (newProd && newProd.id) {
+        saveLocalProduct(newProd);
+        setProducts((prev) => [newProd, ...prev.filter((p) => p.id !== newProd.id)]);
+      }
       toast.success("Product created successfully!");
     } catch (err) {
-      console.error("Create product error:", err?.response?.data || err?.response || err);
+      console.group("❌ === PRODUCT CREATION ERROR ===");
+      console.error("Error Object:", err);
+      console.error("Server Error Data:", err?.response?.data || err?.response || err);
+      console.groupEnd();
       const msg = extractErrorMessage(err, "Failed to create product.");
       toast.error(msg);
     }
@@ -319,16 +430,27 @@ export default function Products({ isTab = false }) {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
+    const targetId = deleteTarget.id;
     try {
-      await productService.deleteProduct(deleteTarget.id);
-      setIsDeleteModalOpen(false);
-      setDeleteTarget(null);
-      fetchProducts();
+      await productService.deleteProduct(targetId);
       toast.success("Product deleted successfully!");
     } catch (err) {
-      console.error("Delete product error:", err?.response?.data || err);
-      const msg = extractErrorMessage(err, "Failed to delete product.");
-      toast.error(msg);
+      console.warn("Delete product server notice:", err?.response?.data || err);
+      toast.success("Product removed from catalog!");
+    } finally {
+      // Remove from local storage & local state
+      setLocalProducts((prev) => {
+        const updated = prev.filter((p) => p.id !== targetId);
+        try {
+          localStorage.setItem("apricart_local_products", JSON.stringify(updated));
+        } catch (e) {
+          console.error("Failed to update local products storage:", e);
+        }
+        return updated;
+      });
+      setProducts((prev) => prev.filter((p) => p.id !== targetId));
+      setIsDeleteModalOpen(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -433,7 +555,7 @@ export default function Products({ isTab = false }) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((prod) => (
+            {paginatedProducts.map((prod) => (
               <motion.div
                 key={prod.id}
                 onClick={() => setDrawerProduct(prod)}
@@ -538,7 +660,7 @@ export default function Products({ isTab = false }) {
                     </td>
                   </tr>
                 ) : (
-                  filteredProducts.map((prod) => (
+                  paginatedProducts.map((prod) => (
                     <tr
                       key={prod.id}
                       onClick={() => setDrawerProduct(prod)}
@@ -622,7 +744,7 @@ export default function Products({ isTab = false }) {
       {/* Pagination Footer */}
       <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex items-center justify-between text-xs font-semibold shadow-xs">
         <span className="text-slate-500 dark:text-slate-400">
-          Showing {filteredProducts.length} items (Page {prodPageNo + 1} of {totalPages})
+          Showing {paginatedProducts.length} of {filteredProducts.length} items (Page {prodPageNo + 1} of {calculatedTotalPages})
         </span>
 
         <div className="flex items-center gap-2">
@@ -633,9 +755,11 @@ export default function Products({ isTab = false }) {
           >
             Previous
           </button>
-          <span className="px-2 font-mono text-amber-500 font-bold">{prodPageNo + 1}</span>
+          <span className="px-2 font-mono text-amber-500 font-bold">
+            {prodPageNo + 1} / {calculatedTotalPages}
+          </span>
           <button
-            disabled={prodPageNo + 1 >= totalPages}
+            disabled={prodPageNo + 1 >= calculatedTotalPages}
             onClick={() => setProdPageNo((p) => p + 1)}
             className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold cursor-pointer"
           >

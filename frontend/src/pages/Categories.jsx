@@ -250,8 +250,8 @@ export default function Categories({ isTab = false }) {
             <button
               onClick={() => setCatViewMode("grid")}
               className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${catViewMode === "grid"
-                  ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
-                  : "text-slate-600 dark:text-slate-400"
+                ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                : "text-slate-600 dark:text-slate-400"
                 }`}
             >
               <GridIcon />
@@ -259,8 +259,8 @@ export default function Categories({ isTab = false }) {
             <button
               onClick={() => setCatViewMode("table")}
               className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${catViewMode === "table"
-                  ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
-                  : "text-slate-600 dark:text-slate-400"
+                ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                : "text-slate-600 dark:text-slate-400"
                 }`}
             >
               <TableIcon />
