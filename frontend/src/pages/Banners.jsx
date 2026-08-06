@@ -27,7 +27,7 @@ const BONES_POSITIONS = ["TOP", "MIDDLE", "BOTTOM", "SIDEBAR", "FOOTER"];
 export default function Banners() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'table'
+  const [viewMode, setViewMode] = useState("table"); // 'grid' | 'table'
   const [filterMode, setFilterMode] = useState("all"); // 'all' | 'active'
   const [searchQuery, setSearchQuery] = useState("");
 

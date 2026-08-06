@@ -7,6 +7,8 @@ import {
   RefreshIcon,
   SearchIcon,
   CloseIcon,
+  GridIcon,
+  TableIcon,
 } from "../components/icons";
 import Toast from "../components/Toast";
 import { toast } from "react-hot-toast";
@@ -121,6 +123,11 @@ export default function ProductsAndCategories() {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // View Modes ('grid' | 'table')
+  const [catViewMode, setCatViewMode] = useState("table");
+  const [subViewMode, setSubViewMode] = useState("table");
+  const [prodViewMode, setProdViewMode] = useState("table");
 
   // Categories Tab states
   const [searchQuery, setSearchQuery] = useState("");
@@ -888,25 +895,53 @@ export default function ProductsAndCategories() {
         {/* TAB 1: Categories Panel */}
         {activeTab === "categories" && (
           <div className="space-y-4">
-            {/* Search */}
-            <form onSubmit={handleCategorySearch} className="flex gap-2 max-w-md">
-              <div className="relative flex-1">
-                <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search Category Name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white text-xs focus:outline-none focus:border-amber-500"
-                />
+            {/* Search & View Switcher */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <form onSubmit={handleCategorySearch} className="flex gap-2 max-w-md flex-1">
+                <div className="relative flex-1">
+                  <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search Category Name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white text-xs focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 rounded-xl bg-[#0B1B3D] text-white hover:bg-[#07132B] font-bold text-xs shadow-md border border-slate-800 cursor-pointer"
+                >
+                  Search
+                </button>
+              </form>
+
+              {/* View Switcher */}
+              <div className="bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1 self-start sm:self-auto">
+                <button
+                  onClick={() => setCatViewMode("grid")}
+                  className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                    catViewMode === "grid"
+                      ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Grid View"
+                >
+                  <GridIcon />
+                </button>
+                <button
+                  onClick={() => setCatViewMode("table")}
+                  className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                    catViewMode === "table"
+                      ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Table View"
+                >
+                  <TableIcon />
+                </button>
               </div>
-              <button
-                type="submit"
-                className="px-4 py-2.5 rounded-xl bg-[#0B1B3D] text-white hover:bg-[#07132B] font-bold text-xs shadow-md border border-slate-800 cursor-pointer"
-              >
-                Search
-              </button>
-            </form>
+            </div>
 
             {categoriesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -920,7 +955,7 @@ export default function ProductsAndCategories() {
                 <h3 className="font-bold text-slate-700 dark:text-slate-300">No Categories Found</h3>
                 <p className="text-xs text-slate-400 mt-1">Try creating a category or resetting the search.</p>
               </div>
-            ) : (
+            ) : catViewMode === "grid" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {categories.map((cat) => (
                   <motion.div
@@ -1014,6 +1049,84 @@ export default function ProductsAndCategories() {
                   </motion.div>
                 ))}
               </div>
+            ) : (
+              /* Categories Table View */
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs md:text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                        <th className="p-4">Image</th>
+                        <th className="p-4">Name</th>
+                        <th className="p-4">Arabic Name</th>
+                        <th className="p-4">ID</th>
+                        <th className="p-4">Position</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                      {categories.map((cat) => (
+                        <tr key={cat.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="p-4">
+                            <div className="relative w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center group">
+                              {cat.image ? (
+                                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <UploadIcon className="w-5 h-5 text-slate-400" />
+                              )}
+                              <label className="absolute inset-0 bg-slate-950/65 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <UploadIcon className="w-4 h-4 text-amber-400" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageUpload(cat.id, e.target.files[0])}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
+                          </td>
+                          <td className="p-4 font-bold text-slate-900 dark:text-white">{cat.name}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-300 font-sans" dir="rtl">{cat.arabicName || "—"}</td>
+                          <td className="p-4 font-mono text-slate-500">{cat.id}</td>
+                          <td className="p-4">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-800">
+                              {cat.position}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                              cat.status
+                                ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                                : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                            }`}>
+                              {cat.status ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => openEditModal(cat)}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
+                                title="Edit"
+                              >
+                                <EditIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors"
+                                title="Delete"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -1021,7 +1134,7 @@ export default function ProductsAndCategories() {
         {/* TAB 2: Subcategories Panel */}
         {activeTab === "subcategories" && (
           <div className="space-y-4">
-            {/* Filter and Search Bar */}
+            {/* Filter, Search & View Bar */}
             <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
                 <div className="flex items-center gap-2">
@@ -1055,16 +1168,44 @@ export default function ProductsAndCategories() {
                 </div>
               </div>
 
-              {/* Search */}
-              <div className="relative w-64 text-xs">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
-                <input
-                  type="text"
-                  placeholder="Filter by subcategory name..."
-                  value={subSearchQuery}
-                  onChange={(e) => setSubSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-950 dark:text-white focus:outline-none focus:border-amber-500"
-                />
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {/* Search */}
+                <div className="relative flex-1 sm:w-64 text-xs">
+                  <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
+                  <input
+                    type="text"
+                    placeholder="Filter by subcategory name..."
+                    value={subSearchQuery}
+                    onChange={(e) => setSubSearchQuery(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-950 dark:text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                {/* View Switcher */}
+                <div className="bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1">
+                  <button
+                    onClick={() => setSubViewMode("grid")}
+                    className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                      subViewMode === "grid"
+                        ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                    title="Grid View"
+                  >
+                    <GridIcon />
+                  </button>
+                  <button
+                    onClick={() => setSubViewMode("table")}
+                    className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                      subViewMode === "table"
+                        ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                    title="Table View"
+                  >
+                    <TableIcon />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1080,7 +1221,7 @@ export default function ProductsAndCategories() {
                 <h3 className="font-bold text-slate-700 dark:text-slate-300">No Subcategories Found</h3>
                 <p className="text-xs text-slate-400 mt-1">Try another parent category or check active filter settings.</p>
               </div>
-            ) : (
+            ) : subViewMode === "grid" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredSubcategories.map((sub) => (
                   <motion.div
@@ -1174,6 +1315,90 @@ export default function ProductsAndCategories() {
                   </motion.div>
                 ))}
               </div>
+            ) : (
+              /* Subcategories Table View */
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs md:text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                        <th className="p-4">Image</th>
+                        <th className="p-4">Sub Name</th>
+                        <th className="p-4">Arabic Name</th>
+                        <th className="p-4">Sub ID</th>
+                        <th className="p-4">Category ID</th>
+                        <th className="p-4">Level</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                      {filteredSubcategories.map((sub) => (
+                        <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="p-4">
+                            <div className="relative w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center group">
+                              {sub.image ? (
+                                <img src={sub.image} alt={sub.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <UploadIcon className="w-5 h-5 text-slate-400" />
+                              )}
+                              <label className="absolute inset-0 bg-slate-950/65 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <UploadIcon className="w-4 h-4 text-amber-400" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleSubImageUpload(sub.id, e.target.files[0])}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
+                          </td>
+                          <td className="p-4 font-bold text-slate-900 dark:text-white">{sub.name}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-300 font-sans" dir="rtl">{sub.arabicName || "—"}</td>
+                          <td className="p-4 font-mono text-slate-500">{sub.id}</td>
+                          <td className="p-4">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-800">
+                              {sub.categoryId}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 font-mono">
+                              {sub.level || "ONE"}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                              sub.status
+                                ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                                : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                            }`}>
+                              {sub.status ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => openEditSubModal(sub)}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
+                                title="Edit"
+                              >
+                                <EditIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSubcategory(sub.id, sub.name)}
+                                className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors"
+                                title="Delete"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -1181,55 +1406,83 @@ export default function ProductsAndCategories() {
         {/* TAB 3: Products Catalog Dashboard */}
         {activeTab === "products" && (
           <div className="space-y-4">
-            {/* Filter and Control Bar */}
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex flex-wrap items-center gap-4 text-xs font-semibold">
-              <div className="flex items-center gap-2">
-                <span>Filter Type:</span>
-                <select
-                  value={prodSearchType}
-                  onChange={(e) => {
-                    setProdSearchType(e.target.value);
-                    setProdFilterId("");
+            {/* Filter, Control & View Bar */}
+            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex flex-wrap items-center justify-between gap-4 text-xs font-semibold">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span>Filter Type:</span>
+                  <select
+                    value={prodSearchType}
+                    onChange={(e) => {
+                      setProdSearchType(e.target.value);
+                      setProdFilterId("");
+                      setProdPageNo(0);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white focus:outline-none"
+                  >
+                    <option value="all">All Products</option>
+                    <option value="featured">Featured Only</option>
+                    <option value="trending">Trending Only</option>
+                    <option value="discounted">Discounted Only</option>
+                    <option value="newarrivals">New Arrivals Only</option>
+                    <option value="ordered">Ordered Products</option>
+                    <option value="category">By Category ID</option>
+                    <option value="subcategory">By Subcategory ID</option>
+                    <option value="sku">By SKU</option>
+                    <option value="id">By Product ID</option>
+                  </select>
+                </div>
+
+                {/* Dynamic filter input if type is category, subcategory, sku, id */}
+                {["category", "subcategory", "sku", "id"].includes(prodSearchType) && (
+                  <div className="flex items-center gap-2">
+                    <span>Enter {prodSearchType.toUpperCase()}:</span>
+                    <input
+                      type="text"
+                      value={prodFilterId}
+                      onChange={(e) => setProdFilterId(e.target.value)}
+                      placeholder={`e.g. ${prodSearchType === "category" ? "11" : prodSearchType === "subcategory" ? "23" : "ACT-0087"}`}
+                      className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={() => {
                     setProdPageNo(0);
+                    fetchProducts();
                   }}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white focus:outline-none"
+                  className="px-4 py-2 rounded-xl bg-[#0B1B3D] text-white hover:bg-[#07132B] font-bold border border-slate-800 cursor-pointer"
                 >
-                  <option value="all">All Products</option>
-                  <option value="featured">Featured Only</option>
-                  <option value="trending">Trending Only</option>
-                  <option value="discounted">Discounted Only</option>
-                  <option value="newarrivals">New Arrivals Only</option>
-                  <option value="ordered">Ordered Products</option>
-                  <option value="category">By Category ID</option>
-                  <option value="subcategory">By Subcategory ID</option>
-                  <option value="sku">By SKU</option>
-                  <option value="id">By Product ID</option>
-                </select>
+                  Apply Filters
+                </button>
               </div>
 
-              {/* Dynamic filter input if type is category, subcategory, sku, id */}
-              {["category", "subcategory", "sku", "id"].includes(prodSearchType) && (
-                <div className="flex items-center gap-2">
-                  <span>Enter {prodSearchType.toUpperCase()}:</span>
-                  <input
-                    type="text"
-                    value={prodFilterId}
-                    onChange={(e) => setProdFilterId(e.target.value)}
-                    placeholder={`e.g. ${prodSearchType === "category" ? "11" : prodSearchType === "subcategory" ? "23" : "ACT-0087"}`}
-                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] text-slate-900 dark:text-white focus:outline-none"
-                  />
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  setProdPageNo(0);
-                  fetchProducts();
-                }}
-                className="px-4 py-2 rounded-xl bg-[#0B1B3D] text-white hover:bg-[#07132B] font-bold border border-slate-800 cursor-pointer"
-              >
-                Apply Filters
-              </button>
+              {/* View Switcher */}
+              <div className="bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1">
+                <button
+                  onClick={() => setProdViewMode("grid")}
+                  className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                    prodViewMode === "grid"
+                      ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Grid View"
+                >
+                  <GridIcon />
+                </button>
+                <button
+                  onClick={() => setProdViewMode("table")}
+                  className={`p-1.5 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1 cursor-pointer ${
+                    prodViewMode === "table"
+                      ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Table View"
+                >
+                  <TableIcon />
+                </button>
+              </div>
             </div>
 
             {productsError && (
@@ -1250,7 +1503,7 @@ export default function ProductsAndCategories() {
                 <h3 className="font-bold text-slate-700 dark:text-slate-300">No Products Found</h3>
                 <p className="text-xs text-slate-400 mt-1">Try another filter parameter or create a product.</p>
               </div>
-            ) : (
+            ) : prodViewMode === "grid" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {products.map((prod) => (
                   <motion.div
@@ -1374,6 +1627,114 @@ export default function ProductsAndCategories() {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            ) : (
+              /* Products Catalog Table View */
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs md:text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                        <th className="p-4">Image</th>
+                        <th className="p-4">Product Title / SKU</th>
+                        <th className="p-4">Arabic Title</th>
+                        <th className="p-4">Cat / Sub ID</th>
+                        <th className="p-4">Weight</th>
+                        <th className="p-4">Status & Badges</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                      {products.map((prod) => (
+                        <tr key={prod.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="p-4">
+                            <div className="relative w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center group">
+                              {prod.image ? (
+                                <img src={prod.image} alt={prod.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <UploadIcon className="w-5 h-5 text-slate-400" />
+                              )}
+                              <label className="absolute inset-0 bg-slate-950/65 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                <UploadIcon className="w-4 h-4 text-amber-400" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleProdImageUpload(prod.id, e.target.files[0])}
+                                  className="hidden"
+                                />
+                              </label>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="font-bold text-slate-900 dark:text-white">{prod.title}</div>
+                            <div className="text-[11px] font-mono text-amber-500 mt-0.5">SKU: {prod.sku}</div>
+                          </td>
+                          <td className="p-4 text-slate-600 dark:text-slate-300 font-sans" dir="rtl">{prod.arabicTitle || "—"}</td>
+                          <td className="p-4">
+                            <div className="flex gap-1.5">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-800">
+                                Cat: {prod.categoryId}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-800">
+                                Sub: {prod.subCategoryId}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-slate-600 dark:text-slate-300 font-mono text-xs">{prod.weight || "—"}</td>
+                          <td className="p-4">
+                            <div className="flex flex-wrap gap-1">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                                prod.isActive
+                                  ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                                  : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                              }`}>
+                                {prod.isActive ? "Active" : "Inactive"}
+                              </span>
+                              {prod.isFeatured && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-500/15 text-blue-500 border border-blue-500/30">
+                                  Featured
+                                </span>
+                              )}
+                              {prod.isDiscounted && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                                  Discounted
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => toggleProductStatus(prod.id, prod.isActive)}
+                                className={`px-2 py-1 rounded-lg border text-[11px] font-bold ${
+                                  prod.isActive
+                                    ? "bg-rose-500/10 border-rose-500/30 text-rose-500 hover:bg-rose-500/20"
+                                    : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20"
+                                }`}
+                              >
+                                {prod.isActive ? "Deactivate" : "Activate"}
+                              </button>
+                              <button
+                                onClick={() => openEditProdModal(prod)}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"
+                                title="Edit"
+                              >
+                                <EditIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProduct(prod.id, prod.title)}
+                                className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-colors"
+                                title="Delete"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
