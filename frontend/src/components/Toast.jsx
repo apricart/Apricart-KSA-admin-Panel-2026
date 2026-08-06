@@ -28,12 +28,12 @@ const Toast = ({ toast, onClose }) => {
   return (
     <Toaster
       position="top-right"
-      containerStyle={{ top: 80, right: 16 }}
+      containerStyle={{ top: 80, right: 16, zIndex: 99999 }}
       toastOptions={{
         duration: 4000,
         style: {
           fontFamily: "Inter, sans-serif",
-          fontSize: "14px",
+          fontSize: "13px",
           fontWeight: "600",
           borderRadius: "14px",
           padding: "12px 18px",
@@ -41,11 +41,15 @@ const Toast = ({ toast, onClose }) => {
           background: isDark ? "#1e293b" : "#ffffff",
           color: isDark ? "#f8fafc" : "#0f172a",
           border: isDark ? "1px solid #334155" : "1px solid #e2e8f0",
+          maxWidth: "520px",
+          wordBreak: "break-word",
         },
         success: {
+          duration: 4000,
           iconTheme: { primary: "#10b981", secondary: "#ffffff" },
         },
         error: {
+          duration: 8000,
           iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
         },
       }}

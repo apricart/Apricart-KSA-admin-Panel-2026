@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import Toast from "./Toast";
 
 export default function MainLayout({ children, onRefresh, refreshing, headerTitle, headerSubtitle }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,6 +47,7 @@ export default function MainLayout({ children, onRefresh, refreshing, headerTitl
           {children}
         </main>
       </div>
+      <Toast />
     </div>
   );
 }

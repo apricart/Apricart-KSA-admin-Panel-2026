@@ -13,6 +13,7 @@ import {
 } from "../components/icons";
 import { toast } from "react-hot-toast";
 import { CategorySkeleton, TableRowsSkeleton } from "../components/Skeleton";
+import { extractErrorMessage } from "../utils/errorHelper";
 
 function UploadIcon({ className }) {
   return (
@@ -178,8 +179,10 @@ export default function Products({ isTab = false }) {
         );
       }
       toast.success("Product image uploaded successfully!");
-    } catch {
-      toast.success("Product image updated!");
+    } catch (err) {
+      console.error("Upload product image error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to upload product image.");
+      toast.error(msg);
     } finally {
       setUploadingProdId(null);
     }
@@ -192,8 +195,10 @@ export default function Products({ isTab = false }) {
         prev.map((p) => (p.id === id ? { ...p, isActive: !currentStatus } : p))
       );
       toast.success(`Product ${!currentStatus ? "activated" : "deactivated"}!`);
-    } catch {
-      toast.error("Failed to update product status.");
+    } catch (err) {
+      console.error("Toggle product status error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to update product status.");
+      toast.error(msg);
     }
   };
 
@@ -233,7 +238,7 @@ export default function Products({ isTab = false }) {
       toast.success("Product created successfully!");
     } catch (err) {
       console.error("Create product error:", err?.response?.data || err?.response || err);
-      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to create product.";
+      const msg = extractErrorMessage(err, "Failed to create product.");
       toast.error(msg);
     }
   };
@@ -267,7 +272,7 @@ export default function Products({ isTab = false }) {
       toast.success("Product updated successfully!");
     } catch (err) {
       console.error("Update product error:", err?.response?.data || err?.response || err);
-      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to update product.";
+      const msg = extractErrorMessage(err, "Failed to update product.");
       toast.error(msg);
     }
   };
@@ -301,8 +306,10 @@ export default function Products({ isTab = false }) {
       setDeleteTarget(null);
       fetchProducts();
       toast.success("Product deleted successfully!");
-    } catch {
-      toast.error("Failed to delete product.");
+    } catch (err) {
+      console.error("Delete product error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to delete product.");
+      toast.error(msg);
     }
   };
 

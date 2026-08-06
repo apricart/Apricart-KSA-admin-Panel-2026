@@ -13,6 +13,7 @@ import {
 } from "../components/icons";
 import { toast } from "react-hot-toast";
 import { CategorySkeleton, TableRowsSkeleton } from "../components/Skeleton";
+import { extractErrorMessage } from "../utils/errorHelper";
 
 function UploadIcon({ className }) {
   return (
@@ -108,7 +109,6 @@ export default function Categories({ isTab = false }) {
 
   const handleCategorySearch = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    // Always re-fetch fresh data from API first, then local filter handles the rest
     await fetchCategories();
   };
 
@@ -130,8 +130,10 @@ export default function Categories({ isTab = false }) {
         );
       }
       toast.success("Category image uploaded successfully!");
-    } catch {
-      toast.success("Category image updated!");
+    } catch (err) {
+      console.error("Upload category image error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to upload category image.");
+      toast.error(msg);
     } finally {
       setUploadingId(null);
     }
@@ -163,13 +165,7 @@ export default function Categories({ isTab = false }) {
       toast.success("Category created successfully!");
     } catch (err) {
       console.error("Create category error:", err?.response?.data || err?.response || err);
-      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || "";
-      let msg = "Failed to create category.";
-      if (serverMsg.toLowerCase().includes("constraint") || err?.response?.status === 500) {
-        msg = `Category "${categoryName}" already exists. Use a different name.`;
-      } else if (serverMsg) {
-        msg = serverMsg;
-      }
+      const msg = extractErrorMessage(err, "Failed to create category.");
       toast.error(msg);
     }
   };
@@ -195,7 +191,7 @@ export default function Categories({ isTab = false }) {
       toast.success("Category updated successfully!");
     } catch (err) {
       console.error("Update category error:", err?.response?.data || err?.response || err);
-      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to update category.";
+      const msg = extractErrorMessage(err, "Failed to update category.");
       toast.error(msg);
     }
   };
@@ -219,8 +215,10 @@ export default function Categories({ isTab = false }) {
       setDeleteTarget(null);
       await fetchCategories();
       toast.success("Category deleted successfully!");
-    } catch {
-      toast.error("Failed to delete category.");
+    } catch (err) {
+      console.error("Delete category error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to delete category.");
+      toast.error(msg);
     }
   };
 

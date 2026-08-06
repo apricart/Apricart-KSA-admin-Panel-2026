@@ -13,6 +13,7 @@ import {
 } from "../components/icons";
 import { toast } from "react-hot-toast";
 import { CategorySkeleton, TableRowsSkeleton } from "../components/Skeleton";
+import { extractErrorMessage } from "../utils/errorHelper";
 
 function UploadIcon({ className }) {
   return (
@@ -137,8 +138,10 @@ export default function Subcategories({ isTab = false }) {
         );
       }
       toast.success("Subcategory image uploaded successfully!");
-    } catch {
-      toast.success("Subcategory image updated!");
+    } catch (err) {
+      console.error("Upload subcategory image error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to upload subcategory image.");
+      toast.error(msg);
     } finally {
       setUploadingSubId(null);
     }
@@ -159,8 +162,10 @@ export default function Subcategories({ isTab = false }) {
       resetSubForm();
       fetchSubcategories();
       toast.success("Subcategory created successfully!");
-    } catch {
-      toast.error("Failed to create subcategory.");
+    } catch (err) {
+      console.error("Create subcategory error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to create subcategory.");
+      toast.error(msg);
     }
   };
 
@@ -180,8 +185,10 @@ export default function Subcategories({ isTab = false }) {
       resetSubForm();
       fetchSubcategories();
       toast.success("Subcategory updated successfully!");
-    } catch {
-      toast.error("Failed to update subcategory.");
+    } catch (err) {
+      console.error("Update subcategory error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to update subcategory.");
+      toast.error(msg);
     }
   };
 
@@ -203,8 +210,10 @@ export default function Subcategories({ isTab = false }) {
       setDeleteTarget(null);
       fetchSubcategories();
       toast.success("Subcategory deleted successfully!");
-    } catch {
-      toast.error("Failed to delete subcategory.");
+    } catch (err) {
+      console.error("Delete subcategory error:", err?.response?.data || err);
+      const msg = extractErrorMessage(err, "Failed to delete subcategory.");
+      toast.error(msg);
     }
   };
 
