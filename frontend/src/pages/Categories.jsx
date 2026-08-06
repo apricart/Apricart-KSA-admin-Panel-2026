@@ -108,26 +108,8 @@ export default function Categories({ isTab = false }) {
 
   const handleCategorySearch = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    if (!searchQuery.trim()) {
-      fetchCategories();
-      return;
-    }
-    try {
-      const response = await categoryService.getCategoryByName(searchQuery.trim());
-      const data = response.data?.data || response.data;
-      if (data) {
-        const apiItems = Array.isArray(data) ? data : [data];
-        setCategories((prev) => {
-          const map = new Map();
-          [...apiItems, ...prev].forEach((item) => {
-            if (item && item.id) map.set(item.id, item);
-          });
-          return Array.from(map.values());
-        });
-      }
-    } catch {
-      // Local filter handles fallback
-    }
+    // Always re-fetch fresh data from API first, then local filter handles the rest
+    await fetchCategories();
   };
 
   const handleImageUpload = async (id, file) => {
@@ -167,7 +149,9 @@ export default function Categories({ isTab = false }) {
         status: categoryStatus,
         isDiscountedCategory: isDiscounted,
       };
+      console.log("Creating category with payload:", JSON.stringify(payload));
       const res = await categoryService.createCategory(payload);
+      console.log("Create category response:", res.data);
       const newCat = res.data?.data || res.data;
       setIsAddModalOpen(false);
       resetForm();
@@ -177,8 +161,16 @@ export default function Categories({ isTab = false }) {
       }
       await fetchCategories();
       toast.success("Category created successfully!");
-    } catch {
-      toast.error("Failed to create category.");
+    } catch (err) {
+      console.error("Create category error:", err?.response?.data || err?.response || err);
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || "";
+      let msg = "Failed to create category.";
+      if (serverMsg.toLowerCase().includes("constraint") || err?.response?.status === 500) {
+        msg = `Category "${categoryName}" already exists. Use a different name.`;
+      } else if (serverMsg) {
+        msg = serverMsg;
+      }
+      toast.error(msg);
     }
   };
 
@@ -195,13 +187,16 @@ export default function Categories({ isTab = false }) {
         status: categoryStatus,
         isDiscountedCategory: isDiscounted,
       };
+      console.log("Updating category with payload:", JSON.stringify(payload));
       await categoryService.updateCategory(payload);
       setIsEditModalOpen(false);
       resetForm();
       await fetchCategories();
       toast.success("Category updated successfully!");
-    } catch {
-      toast.error("Failed to update category.");
+    } catch (err) {
+      console.error("Update category error:", err?.response?.data || err?.response || err);
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to update category.";
+      toast.error(msg);
     }
   };
 
@@ -463,13 +458,13 @@ export default function Categories({ isTab = false }) {
 
               <form onSubmit={isAddModalOpen ? handleAddCategory : handleEditCategory} className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Category Name</label>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Category Name <span className="text-rose-500">*</span></label>
                   <input
                     type="text"
                     required
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    placeholder="e.g. Rice & Grains"
+                    placeholder="e.g. Pulses & Lentils"
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -480,10 +475,60 @@ export default function Categories({ isTab = false }) {
                     type="text"
                     value={categoryArabicName}
                     onChange={(e) => setCategoryArabicName(e.target.value)}
-                    placeholder="e.g. الأرز والحبوب"
+                    placeholder="e.g. البقوليات والعدس"
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 text-right font-sans"
                     dir="rtl"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Level</label>
+                    <select
+                      value={categoryLevel}
+                      onChange={(e) => setCategoryLevel(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="ONE">ONE</option>
+                      <option value="TWO">TWO</option>
+                      <option value="THREE">THREE</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Position</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={categoryPosition}
+                      onChange={(e) => setCategoryPosition(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Status</label>
+                    <select
+                      value={categoryStatus ? "active" : "inactive"}
+                      onChange={(e) => setCategoryStatus(e.target.value === "active")}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Discounted?</label>
+                    <select
+                      value={isDiscounted ? "yes" : "no"}
+                      onChange={(e) => setIsDiscounted(e.target.value === "yes")}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

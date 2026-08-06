@@ -47,6 +47,7 @@ export default function Products({ isTab = false }) {
   const [prodArabicTitle, setProdArabicTitle] = useState("");
   const [prodSku, setProdSku] = useState("");
   const [prodDescription, setProdDescription] = useState("");
+  const [prodArabicDescription, setProdArabicDescription] = useState("");
   const [prodWeight, setProdWeight] = useState("");
   const [prodCategoryId, setProdCategoryId] = useState("");
   const [prodSubCategoryId, setProdSubCategoryId] = useState("");
@@ -57,6 +58,7 @@ export default function Products({ isTab = false }) {
   const [prodIsTrending, setProdIsTrending] = useState(false);
   const [prodIsDiscounted, setProdIsDiscounted] = useState(false);
   const [prodIsNewArrivals, setProdIsNewArrivals] = useState(false);
+  const [prodIsRecommended, setProdIsRecommended] = useState(false);
 
   // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -147,6 +149,7 @@ export default function Products({ isTab = false }) {
     setProdArabicTitle("");
     setProdSku("");
     setProdDescription("");
+    setProdArabicDescription("");
     setProdWeight("");
     setProdPosition(1);
     setProdIsActive(true);
@@ -154,6 +157,7 @@ export default function Products({ isTab = false }) {
     setProdIsTrending(false);
     setProdIsDiscounted(false);
     setProdIsNewArrivals(false);
+    setProdIsRecommended(false);
     setSelectedProduct(null);
   };
 
@@ -195,30 +199,42 @@ export default function Products({ isTab = false }) {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
+    if (!prodCategoryId || Number(prodCategoryId) === 0) {
+      toast.error("Please select a category.");
+      return;
+    }
+    if (!prodSubCategoryId || Number(prodSubCategoryId) === 0) {
+      toast.error("Please select a subcategory.");
+      return;
+    }
     try {
       const payload = {
         title: prodTitle,
         arabicTitle: prodArabicTitle,
-        sku: prodSku,
         description: prodDescription,
+        arabicDescription: prodArabicDescription,
+        sku: prodSku,
         weight: prodWeight,
         categoryId: Number(prodCategoryId),
         subCategoryId: Number(prodSubCategoryId),
         brandId: Number(prodBrandId),
-        position: Number(prodPosition),
         isActive: prodIsActive,
         isFeatured: prodIsFeatured,
         isTrending: prodIsTrending,
         isDiscounted: prodIsDiscounted,
         isNewArrivals: prodIsNewArrivals,
+        isRecommended: prodIsRecommended,
       };
+      console.log("Creating product with payload:", JSON.stringify(payload));
       await productService.createProduct(payload);
       setIsAddProdModalOpen(false);
       resetProdForm();
       fetchProducts();
       toast.success("Product created successfully!");
-    } catch {
-      toast.error("Failed to create product.");
+    } catch (err) {
+      console.error("Create product error:", err?.response?.data || err?.response || err);
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to create product.";
+      toast.error(msg);
     }
   };
 
@@ -229,26 +245,30 @@ export default function Products({ isTab = false }) {
         id: selectedProduct.id,
         title: prodTitle,
         arabicTitle: prodArabicTitle,
-        sku: prodSku,
         description: prodDescription,
+        arabicDescription: prodArabicDescription,
+        sku: prodSku,
         weight: prodWeight,
         categoryId: Number(prodCategoryId),
         subCategoryId: Number(prodSubCategoryId),
         brandId: Number(prodBrandId),
-        position: Number(prodPosition),
         isActive: prodIsActive,
         isFeatured: prodIsFeatured,
         isTrending: prodIsTrending,
         isDiscounted: prodIsDiscounted,
         isNewArrivals: prodIsNewArrivals,
+        isRecommended: prodIsRecommended,
       };
+      console.log("Updating product with payload:", JSON.stringify(payload));
       await productService.updateProduct(payload);
       setIsEditProdModalOpen(false);
       resetProdForm();
       fetchProducts();
       toast.success("Product updated successfully!");
-    } catch {
-      toast.error("Failed to update product.");
+    } catch (err) {
+      console.error("Update product error:", err?.response?.data || err?.response || err);
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Failed to update product.";
+      toast.error(msg);
     }
   };
 
@@ -258,6 +278,7 @@ export default function Products({ isTab = false }) {
     setProdArabicTitle(prod.arabicTitle || "");
     setProdSku(prod.sku || "");
     setProdDescription(prod.description || "");
+    setProdArabicDescription(prod.arabicDescription || "");
     setProdWeight(prod.weight || "");
     setProdCategoryId(prod.categoryId?.toString() || "");
     setProdSubCategoryId(prod.subCategoryId?.toString() || "");
@@ -268,6 +289,7 @@ export default function Products({ isTab = false }) {
     setProdIsTrending(prod.isTrending ?? false);
     setProdIsDiscounted(prod.isDiscounted ?? false);
     setProdIsNewArrivals(prod.isNewArrivals ?? false);
+    setProdIsRecommended(prod.isRecommended ?? false);
     setIsEditProdModalOpen(true);
   };
 
@@ -560,60 +582,83 @@ export default function Products({ isTab = false }) {
               <form onSubmit={isAddProdModalOpen ? handleAddProduct : handleEditProduct} className="space-y-4 text-xs">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold mb-1">Product Title</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Product Title <span className="text-rose-500">*</span></label>
                     <input
                       type="text"
                       required
                       value={prodTitle}
                       onChange={(e) => setProdTitle(e.target.value)}
-                      placeholder="e.g. Basmati Rice 5kg"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                      placeholder="e.g. MASOOR WHOLE 777"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold mb-1">SKU Code</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">SKU Code <span className="text-rose-500">*</span></label>
                     <input
                       type="text"
                       required
                       value={prodSku}
                       onChange={(e) => setProdSku(e.target.value)}
-                      placeholder="e.g. APRA-ACT-001"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-mono"
+                      placeholder="e.g. ACT-0087"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold mb-1">Arabic Title</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Arabic Title</label>
                     <input
                       type="text"
                       value={prodArabicTitle}
                       onChange={(e) => setProdArabicTitle(e.target.value)}
-                      placeholder="e.g. أرز بسمتي 5 كجم"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-right"
+                      placeholder="عدس (مسور) - 777"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-right focus:outline-none focus:border-amber-500"
                       dir="rtl"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold mb-1">Weight / Unit</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Weight / Unit</label>
                     <input
                       type="text"
                       value={prodWeight}
                       onChange={(e) => setProdWeight(e.target.value)}
-                      placeholder="e.g. 5KG"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                      placeholder="e.g. 500g"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                  <textarea
+                    value={prodDescription}
+                    onChange={(e) => setProdDescription(e.target.value)}
+                    placeholder="Product description in English..."
+                    rows={2}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Arabic Description</label>
+                  <textarea
+                    value={prodArabicDescription}
+                    onChange={(e) => setProdArabicDescription(e.target.value)}
+                    placeholder="وصف المنتج بالعربية..."
+                    rows={2}
+                    dir="rtl"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-right focus:outline-none focus:border-amber-500 resize-none"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold mb-1">Category</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
                     <select
                       value={prodCategoryId}
                       onChange={(e) => setProdCategoryId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                     >
                       {categoriesList.map((c) => (
                         <option key={c.id} value={c.id}>{c.name}</option>
@@ -621,11 +666,11 @@ export default function Products({ isTab = false }) {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-bold mb-1">Subcategory</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Subcategory</label>
                     <select
                       value={prodSubCategoryId}
                       onChange={(e) => setProdSubCategoryId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                     >
                       {formSubcategories.map((s) => (
                         <option key={s.id} value={s.id}>{s.name}</option>
@@ -634,11 +679,59 @@ export default function Products({ isTab = false }) {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Brand ID</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={prodBrandId}
+                      onChange={(e) => setProdBrandId(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
+                    <select
+                      value={prodIsActive ? "active" : "inactive"}
+                      onChange={(e) => setProdIsActive(e.target.value === "active")}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Boolean Toggles Row */}
+                <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-2">Product Flags</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { label: "Featured", value: prodIsFeatured, setter: setProdIsFeatured },
+                      { label: "Trending", value: prodIsTrending, setter: setProdIsTrending },
+                      { label: "Discounted", value: prodIsDiscounted, setter: setProdIsDiscounted },
+                      { label: "New Arrivals", value: prodIsNewArrivals, setter: setProdIsNewArrivals },
+                      { label: "Recommended", value: prodIsRecommended, setter: setProdIsRecommended },
+                    ].map((flag) => (
+                      <label key={flag.label} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={flag.value}
+                          onChange={(e) => flag.setter(e.target.checked)}
+                          className="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                        />
+                        <span className="text-slate-700 dark:text-slate-300 font-semibold">{flag.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => { setIsAddProdModalOpen(false); setIsEditProdModalOpen(false); }}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 font-bold cursor-pointer"
+                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 font-bold cursor-pointer text-slate-700 dark:text-slate-300"
                   >
                     Cancel
                   </button>
