@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProductsAndCategories from "./pages/ProductsAndCategories";
+import Banners from "./pages/Banners";
 
 export default function App() {
   return (
@@ -26,6 +27,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <ProductsAndCategories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/banners"
+              element={
+                <ProtectedRoute>
+                  <Banners />
                 </ProtectedRoute>
               }
             />

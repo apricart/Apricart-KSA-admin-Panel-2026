@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   DashboardIcon,
   ProductsIcon,
+  BannerIcon,
   UsersIcon,
   SettingsIcon,
   ChevronLeftIcon,
@@ -11,8 +12,9 @@ import {
 } from "./icons";
 
 const NAV_ITEMS = [
-  { label: "Orders Dashboard", path: "/", icon: DashboardIcon, active: true },
+  { label: "Orders Dashboard", path: "/", icon: DashboardIcon },
   { label: "Products", path: "/products", icon: ProductsIcon },
+  { label: "Banners", path: "/banners", icon: BannerIcon },
   { label: "Customers", path: "/customers", icon: UsersIcon, badge: "Soon" },
   { label: "Settings", path: "/settings", icon: SettingsIcon, badge: "Soon" },
 ];
