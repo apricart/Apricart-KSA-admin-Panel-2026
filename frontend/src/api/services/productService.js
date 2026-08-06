@@ -3,8 +3,7 @@ import apiClient from "../client";
 export const productService = {
   /**
    * Create a new product
-   * @param {Object} productData - Product payload
-   * @returns {Promise} Axios response promise
+   * POST {{baseUrl}}/v1/products
    */
   createProduct: async (productData) => {
     return apiClient.post("products", productData);
@@ -12,29 +11,34 @@ export const productService = {
 
   /**
    * Upload / Update product image
-   * @param {number|string} id - Product ID
-   * @param {File} file - Image file to upload
-   * @returns {Promise} Axios response promise
+   * POST {{baseUrl}}/v1/products/image/update/{{product_id}}
    */
   uploadProductImage: async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("image", file);
     try {
-      return await apiClient.post(`auth/open/products/image/update/${id}`, formData, {
+      return await apiClient.post(`products/image/update/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
     } catch {
-      return await apiClient.post(`products/image/update/${id}`, formData, {
+      return await apiClient.post(`auth/open/products/image/update/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
     }
   },
 
   /**
+   * Get product image by ID
+   * GET {{baseUrl}}/v1/products/image/{{product_id}}
+   */
+  getProductImage: async (id) => {
+    return apiClient.get(`products/image/${id}`);
+  },
+
+  /**
    * Get all products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products?pageNo=0&pageSize=10
    */
   getProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products", { params });
@@ -42,8 +46,7 @@ export const productService = {
 
   /**
    * Get product details by ID
-   * @param {number|string} id - Product ID
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/{{product_id}}
    */
   getProductById: async (id) => {
     return apiClient.get(`products/${id}`);
@@ -51,8 +54,7 @@ export const productService = {
 
   /**
    * Get product details by SKU
-   * @param {string} sku - Product SKU
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/sku/{{sku}}
    */
   getProductBySku: async (sku) => {
     return apiClient.get(`products/sku/${sku}`);
@@ -60,9 +62,7 @@ export const productService = {
 
   /**
    * Get products belonging to a Category paginated
-   * @param {number|string} categoryId - Category ID
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/category/{{category_id}}?pageNo=0&pageSize=10
    */
   getProductsByCategory: async (categoryId, params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get(`products/category/${categoryId}`, { params });
@@ -70,9 +70,7 @@ export const productService = {
 
   /**
    * Get products belonging to a Subcategory paginated
-   * @param {number|string} subcategoryId - Subcategory ID
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/subcategory/{{subcategory_id}}?pageNo=0&pageSize=10
    */
   getProductsBySubcategory: async (subcategoryId, params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get(`products/subcategory/${subcategoryId}`, { params });
@@ -80,9 +78,7 @@ export const productService = {
 
   /**
    * Get products belonging to a Brand paginated
-   * @param {number|string} brandId - Brand ID
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/brands/{{brand_id}}?pageNo=0&pageSize=10
    */
   getProductsByBrand: async (brandId, params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get(`products/brands/${brandId}`, { params });
@@ -90,8 +86,7 @@ export const productService = {
 
   /**
    * Get featured products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/featured?pageNo=0&pageSize=10
    */
   getFeaturedProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products/featured", { params });
@@ -99,8 +94,7 @@ export const productService = {
 
   /**
    * Get trending products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/trending?pageNo=0&pageSize=10
    */
   getTrendingProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products/trending", { params });
@@ -108,8 +102,7 @@ export const productService = {
 
   /**
    * Get discounted products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/discounted?pageNo=0&pageSize=10
    */
   getDiscountedProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products/discounted", { params });
@@ -117,8 +110,7 @@ export const productService = {
 
   /**
    * Get new arrivals products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/newarrivals?pageNo=0&pageSize=10
    */
   getNewArrivalsProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products/newarrivals", { params });
@@ -126,8 +118,7 @@ export const productService = {
 
   /**
    * Get ordered products paginated
-   * @param {Object} params - Query params (pageNo, pageSize)
-   * @returns {Promise} Axios response promise
+   * GET {{baseUrl}}/v1/products/ordered?pageNo=0&pageSize=10
    */
   getOrderedProducts: async (params = { pageNo: 0, pageSize: 10 }) => {
     return apiClient.get("products/ordered", { params });
@@ -135,8 +126,7 @@ export const productService = {
 
   /**
    * Update an existing product
-   * @param {Object} productData - Product payload (must include id)
-   * @returns {Promise} Axios response promise
+   * PUT {{baseUrl}}/v1/products
    */
   updateProduct: async (productData) => {
     return apiClient.put("products", productData);
@@ -144,28 +134,23 @@ export const productService = {
 
   /**
    * Update product list order position
-   * @param {number|string} id - Product ID
-   * @param {number} position - Position value
-   * @returns {Promise} Axios response promise
+   * PUT {{baseUrl}}/v1/products/{{product_id}}/1
    */
-  updateProductPosition: async (id, position) => {
+  updateProductPosition: async (id, position = 1) => {
     return apiClient.put(`products/${id}/${position}`);
   },
 
   /**
    * Update product active status
-   * @param {number|string} id - Product ID
-   * @param {boolean} isActive - Active status value (true/false)
-   * @returns {Promise} Axios response promise
+   * PUT {{baseUrl}}/v1/products/status/{{product_id}}/true
    */
-  updateProductStatus: async (id, isActive) => {
+  updateProductStatus: async (id, isActive = true) => {
     return apiClient.put(`products/status/${id}/${isActive}`);
   },
 
   /**
    * Delete a product by ID
-   * @param {number|string} id - Product ID
-   * @returns {Promise} Axios response promise
+   * DELETE {{baseUrl}}/v1/products/{{product_id}}
    */
   deleteProduct: async (id) => {
     return apiClient.delete(`products/${id}`);
