@@ -529,7 +529,7 @@ export default function Banners() {
                     <th className="p-4">Level</th>
                     <th className="p-4">Position</th>
                     <th className="p-4">Status</th>
-                    <th className="p-4 text-right">Actions</th>
+                    <th className="p-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
@@ -577,8 +577,8 @@ export default function Banners() {
                             {banner.status ? "Active" : "Inactive"}
                           </button>
                         </td>
-                        <td className="p-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
+                        <td className="p-4">
+                          <div className="flex items-center justify-start gap-1.5">
                             <button
                               onClick={() => handleOpenImageModal(banner)}
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 transition-colors"

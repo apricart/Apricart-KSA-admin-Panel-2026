@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { productService, categoryService, subcategoryService } from "../api";
 import {
@@ -14,6 +14,7 @@ import {
 import { toast } from "react-hot-toast";
 import { CategorySkeleton, TableRowsSkeleton } from "../components/Skeleton";
 import { extractErrorMessage } from "../utils/errorHelper";
+import ProductDetailPanel from "../components/ProductDetailPanel";
 
 function UploadIcon({ className }) {
   return (
@@ -28,10 +29,14 @@ export default function Products({ isTab = false }) {
   const [productsLoading, setProductsLoading] = useState(true);
   const [prodViewMode, setProdViewMode] = useState("table");
   const [prodSearchType, setProdSearchType] = useState("all");
+  const [prodSearchQuery, setProdSearchQuery] = useState("");
   const [prodFilterId, setProdFilterId] = useState("");
   const [prodPageNo, setProdPageNo] = useState(0);
   const [prodPageSize, setProdPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Side Drawer Product Details state
+  const [drawerProduct, setDrawerProduct] = useState(null);
 
   // Categories & Subcategories list for dropdowns
   const [categoriesList, setCategoriesList] = useState([]);
@@ -144,6 +149,20 @@ export default function Products({ isTab = false }) {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  // Live Instant Typing Search Filter for Products
+  const filteredProducts = useMemo(() => {
+    if (!prodSearchQuery.trim()) return products;
+    const q = prodSearchQuery.toLowerCase().trim();
+    return products.filter(
+      (p) =>
+        (p.title && p.title.toLowerCase().includes(q)) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
+        (p.arabicTitle && p.arabicTitle.toLowerCase().includes(q)) ||
+        (p.id && p.id.toString().includes(q)) ||
+        (p.weight && p.weight.toLowerCase().includes(q))
+    );
+  }, [products, prodSearchQuery]);
 
   const resetProdForm = () => {
     setProdTitle("");
@@ -317,26 +336,40 @@ export default function Products({ isTab = false }) {
     <div className="space-y-4">
       {/* Controls Bar */}
       <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex flex-wrap items-center justify-between gap-4 shadow-xs">
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
-          <label className="text-slate-700 dark:text-slate-300 font-bold">Filter Type:</label>
-          <select
-            value={prodSearchType}
-            onChange={(e) => {
-              setProdSearchType(e.target.value);
-              setProdFilterId("");
-              setProdPageNo(0);
-            }}
-            className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
-          >
-            <option value="all">All Products</option>
-            <option value="category">By Category ID</option>
-            <option value="subcategory">By Subcategory ID</option>
-            <option value="sku">By SKU Code</option>
-            <option value="featured">Featured Products</option>
-            <option value="trending">Trending Products</option>
-            <option value="discounted">Discounted Products</option>
-            <option value="newarrivals">New Arrivals</option>
-          </select>
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold flex-1">
+          {/* Instant Search Bar */}
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search Product Title / SKU..."
+              value={prodSearchQuery}
+              onChange={(e) => setProdSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-xs focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-slate-700 dark:text-slate-300 font-bold">Filter Type:</label>
+            <select
+              value={prodSearchType}
+              onChange={(e) => {
+                setProdSearchType(e.target.value);
+                setProdFilterId("");
+                setProdPageNo(0);
+              }}
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+            >
+              <option value="all">All Products</option>
+              <option value="category">By Category ID</option>
+              <option value="subcategory">By Subcategory ID</option>
+              <option value="sku">By SKU Code</option>
+              <option value="featured">Featured Products</option>
+              <option value="trending">Trending Products</option>
+              <option value="discounted">Discounted Products</option>
+              <option value="newarrivals">New Arrivals</option>
+            </select>
+          </div>
 
           {["category", "subcategory", "sku"].includes(prodSearchType) && (
             <input
@@ -360,17 +393,15 @@ export default function Products({ isTab = false }) {
           <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1">
             <button
               onClick={() => setProdViewMode("grid")}
-              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                prodViewMode === "grid" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
-              }`}
+              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${prodViewMode === "grid" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
+                }`}
             >
               <GridIcon />
             </button>
             <button
               onClick={() => setProdViewMode("table")}
-              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${
-                prodViewMode === "table" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
-              }`}
+              className={`p-1.5 rounded-lg text-xs font-semibold cursor-pointer ${prodViewMode === "table" ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs" : "text-slate-600 dark:text-slate-400"
+                }`}
             >
               <TableIcon />
             </button>
@@ -395,17 +426,18 @@ export default function Products({ isTab = false }) {
               <CategorySkeleton key={i} />
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl">
             <PackageIcon className="mx-auto w-12 h-12 text-slate-400 dark:text-slate-600 stroke-1 mb-2" />
             <h3 className="font-bold text-slate-700 dark:text-slate-300">No Products Found</h3>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((prod) => (
+            {filteredProducts.map((prod) => (
               <motion.div
                 key={prod.id}
-                className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs flex flex-col justify-between"
+                onClick={() => setDrawerProduct(prod)}
+                className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] shadow-xs flex flex-col justify-between cursor-pointer hover:border-amber-500/40 transition-colors"
               >
                 <div>
                   <div className="relative w-full h-36 bg-slate-100 dark:bg-slate-900 rounded-xl overflow-hidden mb-4 border border-slate-200/50 dark:border-slate-800 flex items-center justify-center group">
@@ -417,7 +449,10 @@ export default function Products({ isTab = false }) {
                         <span className="text-[10px]">No Product Image</span>
                       </div>
                     )}
-                    <label className="absolute inset-0 bg-slate-950/65 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <label
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute inset-0 bg-slate-950/65 flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
                       <UploadIcon className="w-6 h-6 mb-1 text-amber-400" />
                       <span className="text-[10px] font-bold">Upload Image</span>
                       <input
@@ -446,18 +481,33 @@ export default function Products({ isTab = false }) {
 
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
                   <button
-                    onClick={() => toggleProductStatus(prod.id, prod.isActive)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${
-                      prod.isActive ? "bg-rose-500/10 border-rose-500/30 text-rose-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
-                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleProductStatus(prod.id, prod.isActive);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer ${prod.isActive ? "bg-rose-500/10 border-rose-500/30 text-rose-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                      }`}
                   >
                     {prod.isActive ? "Deactivate" : "Activate"}
                   </button>
-                  <button onClick={() => openEditProdModal(prod)} className="flex-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openEditProdModal(prod);
+                    }}
+                    className="flex-1 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
                     <EditIcon className="w-3.5 h-3.5" />
                     Edit
                   </button>
-                  <button onClick={() => { setDeleteTarget({ type: "product", id: prod.id, name: prod.title }); setIsDeleteModalOpen(true); }} className="py-1.5 px-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 text-rose-600 font-bold text-xs flex items-center justify-center cursor-pointer">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget({ type: "product", id: prod.id, name: prod.title });
+                      setIsDeleteModalOpen(true);
+                    }}
+                    className="py-1.5 px-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/20 text-rose-600 font-bold text-xs flex items-center justify-center cursor-pointer"
+                  >
                     <TrashIcon className="w-4 h-4" />
                   </button>
                 </div>
@@ -474,26 +524,31 @@ export default function Products({ isTab = false }) {
                   <th className="p-4">Image</th>
                   <th className="p-4">Product Title / SKU</th>
                   <th className="p-4">Arabic Title</th>
-                  <th className="p-4">Cat / Sub ID</th>
-                  <th className="p-4">Weight</th>
                   <th className="p-4">Status & Badges</th>
-                  <th className="p-4 text-right">Actions</th>
+                  <th className="p-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
                 {productsLoading ? (
-                  <TableRowsSkeleton rows={6} columnsCount={7} />
-                ) : products.length === 0 ? (
+                  <TableRowsSkeleton rows={6} columnsCount={5} />
+                ) : filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-8 text-center text-slate-400 text-xs font-semibold">
+                    <td colSpan={5} className="p-8 text-center text-slate-400 text-xs font-semibold">
                       No Products Found
                     </td>
                   </tr>
                 ) : (
-                  products.map((prod) => (
-                    <tr key={prod.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  filteredProducts.map((prod) => (
+                    <tr
+                      key={prod.id}
+                      onClick={() => setDrawerProduct(prod)}
+                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                    >
                       <td className="p-4">
-                        <div className="relative w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center group">
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="relative w-12 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center group"
+                        >
                           {prod.image ? (
                             <img src={prod.image} alt={prod.title} className="w-full h-full object-cover" />
                           ) : (
@@ -511,30 +566,46 @@ export default function Products({ isTab = false }) {
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="font-bold text-slate-900 dark:text-white">{prod.title}</div>
+                        <div className="font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">
+                          {prod.title}
+                        </div>
                         <div className="text-[10px] text-amber-500 font-mono">SKU: {prod.sku}</div>
                       </td>
-                      <td className="p-4 text-slate-600 dark:text-slate-300 font-sans" dir="rtl">{prod.arabicTitle || "—"}</td>
-                      <td className="p-4">Cat: {prod.categoryId} | Sub: {prod.subCategoryId}</td>
-                      <td className="p-4">{prod.weight || "N/A"}</td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                          prod.isActive ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                        }`}>
-                          {prod.isActive ? "Active" : "Inactive"}
-                        </span>
+                      <td className="p-4 text-slate-600 dark:text-slate-300 font-sans" dir="rtl">
+                        {prod.arabicTitle || "—"}
                       </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button onClick={() => toggleProductStatus(prod.id, prod.isActive)} className={`px-2 py-1 rounded-lg border text-[11px] font-bold ${
-                            prod.isActive ? "bg-rose-500/10 border-rose-500/30 text-rose-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
-                          }`}>
+                      <td className="p-4">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${prod.isActive ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                            }`}>
+                            {prod.isActive ? "Active" : "Inactive"}
+                          </span>
+                          {prod.isFeatured && <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">Featured</span>}
+                          {prod.isTrending && <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">Trending</span>}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center justify-start gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => toggleProductStatus(prod.id, prod.isActive)}
+                            className={`px-2 py-1 rounded-lg border text-[11px] font-bold cursor-pointer ${prod.isActive ? "bg-rose-500/10 border-rose-500/30 text-rose-500" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                              }`}
+                          >
                             {prod.isActive ? "Deactivate" : "Activate"}
                           </button>
-                          <button onClick={() => openEditProdModal(prod)} className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 cursor-pointer">
+                          <button
+                            onClick={() => openEditProdModal(prod)}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 cursor-pointer"
+                          >
                             <EditIcon className="w-4 h-4" />
                           </button>
-                          <button onClick={() => { setDeleteTarget({ type: "product", id: prod.id, name: prod.title }); setIsDeleteModalOpen(true); }} className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 cursor-pointer">
+                          <button
+                            onClick={() => {
+                              setDeleteTarget({ type: "product", id: prod.id, name: prod.title });
+                              setIsDeleteModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 cursor-pointer"
+                          >
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -548,173 +619,185 @@ export default function Products({ isTab = false }) {
         </div>
       )}
 
-      {/* Pagination Controls */}
-      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex justify-between items-center text-xs">
-        <button
-          disabled={prodPageNo === 0}
-          onClick={() => setProdPageNo((prev) => Math.max(0, prev - 1))}
-          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 disabled:opacity-50 font-bold cursor-pointer"
-        >
-          Previous
-        </button>
-        <span className="font-semibold text-slate-500">Page {prodPageNo + 1} of {totalPages}</span>
-        <button
-          disabled={prodPageNo + 1 >= totalPages}
-          onClick={() => setProdPageNo((prev) => prev + 1)}
-          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 disabled:opacity-50 font-bold cursor-pointer"
-        >
-          Next
-        </button>
+      {/* Pagination Footer */}
+      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131926] flex items-center justify-between text-xs font-semibold shadow-xs">
+        <span className="text-slate-500 dark:text-slate-400">
+          Showing {filteredProducts.length} items (Page {prodPageNo + 1} of {totalPages})
+        </span>
+
+        <div className="flex items-center gap-2">
+          <button
+            disabled={prodPageNo === 0}
+            onClick={() => setProdPageNo((p) => Math.max(0, p - 1))}
+            className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold cursor-pointer"
+          >
+            Previous
+          </button>
+          <span className="px-2 font-mono text-amber-500 font-bold">{prodPageNo + 1}</span>
+          <button
+            disabled={prodPageNo + 1 >= totalPages}
+            onClick={() => setProdPageNo((p) => p + 1)}
+            className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold cursor-pointer"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
-      {/* Add/Edit Product Modals */}
+      {/* Side Drawer Product Detail Panel */}
+      <AnimatePresence>
+        {drawerProduct && (
+          <ProductDetailPanel
+            productId={drawerProduct.id}
+            initialProduct={drawerProduct}
+            onClose={() => setDrawerProduct(null)}
+            onEdit={(prod) => openEditProdModal(prod)}
+            onDelete={(id, title) => {
+              setDeleteTarget({ type: "product", id, name: title });
+              setIsDeleteModalOpen(true);
+            }}
+            onStatusToggle={(id, currentStatus) => toggleProductStatus(id, currentStatus)}
+            onProductUpdated={() => fetchProducts()}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Add / Edit Product Modal */}
       <AnimatePresence>
         {(isAddProdModalOpen || isEditProdModalOpen) && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-[#131926] border border-slate-200 dark:border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 my-8"
             >
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="font-bold text-slate-900 dark:text-white text-base">
                   {isAddProdModalOpen ? "Add New Product" : "Edit Product"}
                 </h3>
-                <button onClick={() => { setIsAddProdModalOpen(false); setIsEditProdModalOpen(false); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer">
+                <button
+                  onClick={() => { setIsAddProdModalOpen(false); setIsEditProdModalOpen(false); }}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                >
                   <CloseIcon />
                 </button>
               </div>
 
               <form onSubmit={isAddProdModalOpen ? handleAddProduct : handleEditProduct} className="space-y-4 text-xs">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Product Title <span className="text-rose-500">*</span></label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Title (English) *</label>
                     <input
                       type="text"
                       required
+                      placeholder="e.g. MASOOR WHOLE 777"
                       value={prodTitle}
                       onChange={(e) => setProdTitle(e.target.value)}
-                      placeholder="e.g. MASOOR WHOLE 777"
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">SKU Code <span className="text-rose-500">*</span></label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Arabic Title *</label>
                     <input
                       type="text"
                       required
-                      value={prodSku}
-                      onChange={(e) => setProdSku(e.target.value)}
-                      placeholder="e.g. ACT-0087"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-amber-500"
+                      dir="rtl"
+                      placeholder="عدس (مسور) - 777"
+                      value={prodArabicTitle}
+                      onChange={(e) => setProdArabicTitle(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 font-sans"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Arabic Title</label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">SKU Code *</label>
                     <input
                       type="text"
-                      value={prodArabicTitle}
-                      onChange={(e) => setProdArabicTitle(e.target.value)}
-                      placeholder="عدس (مسور) - 777"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-right focus:outline-none focus:border-amber-500"
-                      dir="rtl"
+                      required
+                      placeholder="e.g. ACT-0087"
+                      value={prodSku}
+                      onChange={(e) => setProdSku(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Weight / Unit</label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Weight / Unit</label>
                     <input
                       type="text"
+                      placeholder="e.g. 1 KG"
                       value={prodWeight}
                       onChange={(e) => setProdWeight(e.target.value)}
-                      placeholder="e.g. 500g"
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                  <textarea
-                    value={prodDescription}
-                    onChange={(e) => setProdDescription(e.target.value)}
-                    placeholder="Product description in English..."
-                    rows={2}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Arabic Description</label>
-                  <textarea
-                    value={prodArabicDescription}
-                    onChange={(e) => setProdArabicDescription(e.target.value)}
-                    placeholder="وصف المنتج بالعربية..."
-                    rows={2}
-                    dir="rtl"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-right focus:outline-none focus:border-amber-500 resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Category *</label>
                     <select
                       value={prodCategoryId}
                       onChange={(e) => setProdCategoryId(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                     >
-                      {categoriesList.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                      {categoriesList.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name} (ID: {cat.id})
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Subcategory</label>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Subcategory *</label>
                     <select
                       value={prodSubCategoryId}
                       onChange={(e) => setProdSubCategoryId(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                     >
-                      {formSubcategories.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
+                      {formSubcategories.length === 0 ? (
+                        <option value="">No subcategories available</option>
+                      ) : (
+                        formSubcategories.map((sub) => (
+                          <option key={sub.id} value={sub.id}>
+                            {sub.name} (ID: {sub.id})
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Brand ID</label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={prodBrandId}
-                      onChange={(e) => setProdBrandId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
-                    <select
-                      value={prodIsActive ? "active" : "inactive"}
-                      onChange={(e) => setProdIsActive(e.target.value === "active")}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 cursor-pointer"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">English Description</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Enter product description..."
+                    value={prodDescription}
+                    onChange={(e) => setProdDescription(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                  />
                 </div>
 
-                {/* Boolean Toggles Row */}
-                <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-2">Product Flags</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Arabic Description</label>
+                  <textarea
+                    rows={2}
+                    dir="rtl"
+                    placeholder="الوصف باللغة العربية..."
+                    value={prodArabicDescription}
+                    onChange={(e) => setProdArabicDescription(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 font-sans"
+                  />
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <span className="block text-slate-700 dark:text-slate-300 font-bold">Badges & Flags</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
+                      { label: "Active", value: prodIsActive, setter: setProdIsActive },
                       { label: "Featured", value: prodIsFeatured, setter: setProdIsFeatured },
                       { label: "Trending", value: prodIsTrending, setter: setProdIsTrending },
                       { label: "Discounted", value: prodIsDiscounted, setter: setProdIsDiscounted },

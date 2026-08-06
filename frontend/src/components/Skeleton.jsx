@@ -186,4 +186,42 @@ export function CategorySkeleton() {
 export const SubcategorySkeleton = CategorySkeleton;
 export const ProductSkeleton = CategorySkeleton;
 
+// Product Detail Side Drawer Skeleton Component
+export function ProductDetailSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      {/* Product Image Skeleton */}
+      <div className="w-full h-48 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl" />
+
+      {/* Title & SKU Skeleton */}
+      <div className="space-y-2">
+        <Skeleton variant="text" width="70%" height={20} />
+        <Skeleton variant="text" width="40%" height={14} />
+      </div>
+
+      {/* Details Section Skeleton */}
+      <div className="space-y-3">
+        <Skeleton variant="text" width="40%" height={14} />
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 p-4 space-y-3">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex justify-between items-center">
+              <Skeleton variant="text" width="35%" height={12} />
+              <Skeleton variant="text" width="45%" height={14} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Descriptions Skeleton */}
+      <div className="space-y-3">
+        <Skeleton variant="text" width="30%" height={14} />
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 p-4 space-y-2">
+          <Skeleton variant="text" width="90%" height={12} />
+          <Skeleton variant="text" width="80%" height={12} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default Skeleton;

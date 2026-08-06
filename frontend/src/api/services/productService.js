@@ -69,11 +69,17 @@ export const productService = {
   },
 
   /**
-   * Get products belonging to a Subcategory paginated
-   * GET {{baseUrl}}/v1/products/subcategory/{{subcategory_id}}?pageNo=0&pageSize=10
+   * Get products belonging to a Subcategory
+   * GET {{baseUrl}}/v1/auth/open/products/subcategory/{{subcategory_id}}?warehouseId=1
    */
-  getProductsBySubcategory: async (subcategoryId, params = { pageNo: 0, pageSize: 10 }) => {
-    return apiClient.get(`products/subcategory/${subcategoryId}`, { params });
+  getProductsBySubcategory: async (subcategoryId, warehouseId = 1, params = { pageNo: 0, pageSize: 10 }) => {
+    try {
+      return await apiClient.get(`auth/open/products/subcategory/${subcategoryId}`, {
+        params: { warehouseId: warehouseId || 1, ...params },
+      });
+    } catch {
+      return await apiClient.get(`products/subcategory/${subcategoryId}`, { params });
+    }
   },
 
   /**

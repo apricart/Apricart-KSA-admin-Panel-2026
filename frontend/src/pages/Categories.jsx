@@ -249,21 +249,19 @@ export default function Categories({ isTab = false }) {
           <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1">
             <button
               onClick={() => setCatViewMode("grid")}
-              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                catViewMode === "grid"
+              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${catViewMode === "grid"
                   ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
                   : "text-slate-600 dark:text-slate-400"
-              }`}
+                }`}
             >
               <GridIcon />
             </button>
             <button
               onClick={() => setCatViewMode("table")}
-              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${
-                catViewMode === "table"
+              className={`p-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer ${catViewMode === "table"
                   ? "bg-white dark:bg-slate-900 text-amber-500 shadow-xs"
                   : "text-slate-600 dark:text-slate-400"
-              }`}
+                }`}
             >
               <TableIcon />
             </button>
@@ -410,9 +408,8 @@ export default function Categories({ isTab = false }) {
                       <td className="p-4 font-mono text-slate-500">{cat.id}</td>
                       <td className="p-4">{cat.position || 1}</td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                          cat.status ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${cat.status ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" : "bg-rose-500/15 text-rose-500 border-rose-500/30"
+                          }`}>
                           {cat.status ? "Active" : "Inactive"}
                         </span>
                       </td>

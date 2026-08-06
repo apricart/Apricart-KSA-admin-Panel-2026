@@ -4,14 +4,15 @@ export const subcategoryService = {
   /**
    * Get subcategories belonging to a parent category
    * @param {number|string} categoryId - Category ID
+   * @param {number|string} [warehouseId=1] - Warehouse ID
    * @returns {Promise} Axios response promise
    */
-  getSubcategoriesByCategory: async (categoryId) => {
+  getSubcategoriesByCategory: async (categoryId, warehouseId = 1) => {
     try {
-      return await apiClient.get(`auth/open/subcategories/${categoryId}`);
+      return await apiClient.get(`auth/open/categories/${categoryId}/subcategories?warehouseId=${warehouseId || 1}`);
     } catch {
       try {
-        return await apiClient.get(`auth/open/subcategories/category/${categoryId}`);
+        return await apiClient.get(`auth/open/subcategories/${categoryId}`);
       } catch {
         return await apiClient.get(`subcategories/${categoryId}`);
       }
